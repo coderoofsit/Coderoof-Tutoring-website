@@ -304,16 +304,18 @@ const StudentView = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-secondary/20 to-accent/10 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Welcome back, {studentName}! 👋
-            </h1>
-            <p className="text-muted-foreground">Ready to continue your learning journey?</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <GraduationCap className="w-5 h-5 text-primary" />
-            <span className="text-sm font-medium">Student Dashboard</span>
+        <div className="bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 p-6 rounded-xl border border-primary/20 shadow-lg animate-fade-in">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Welcome back, {studentName}! 👋
+              </h1>
+              <p className="text-muted-foreground mt-2">Ready to continue your learning journey?</p>
+            </div>
+            <div className="flex items-center gap-2 bg-white/80 px-4 py-2 rounded-lg shadow-sm">
+              <GraduationCap className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium">Student Dashboard</span>
+            </div>
           </div>
         </div>
 
@@ -331,50 +333,58 @@ const StudentView = () => {
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-4 gap-4">
-          <Card className="border-l-4 border-l-blue-500 hover:shadow-lg transition-all duration-300 animate-fade-in">
+          <Card className="border-l-4 border-l-blue-500 hover:shadow-xl hover:scale-105 transition-all duration-300 animate-fade-in bg-gradient-to-br from-blue-50/50 to-white">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-2xl font-bold text-blue-500">{studentStats.totalSessions}</p>
-                  <p className="text-sm text-muted-foreground">Total Sessions</p>
+                  <p className="text-sm text-muted-foreground font-medium">Total Sessions</p>
                 </div>
-                <BookOpen className="w-8 h-8 text-blue-500/20" />
+                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                  <BookOpen className="w-6 h-6 text-blue-500" />
+                </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="border-l-4 border-l-green-500 hover:shadow-lg transition-all duration-300 animate-fade-in">
+          <Card className="border-l-4 border-l-green-500 hover:shadow-xl hover:scale-105 transition-all duration-300 animate-fade-in bg-gradient-to-br from-green-50/50 to-white">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-2xl font-bold text-green-500">{studentStats.completedSessions}</p>
-                  <p className="text-sm text-muted-foreground">Completed</p>
+                  <p className="text-sm text-muted-foreground font-medium">Completed</p>
                 </div>
-                <CheckCircle className="w-8 h-8 text-green-500/20" />
+                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-green-500" />
+                </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="border-l-4 border-l-orange-500 hover:shadow-lg transition-all duration-300 animate-fade-in">
+          <Card className="border-l-4 border-l-orange-500 hover:shadow-xl hover:scale-105 transition-all duration-300 animate-fade-in bg-gradient-to-br from-orange-50/50 to-white">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-2xl font-bold text-orange-500">{studentStats.pendingSessions}</p>
-                  <p className="text-sm text-muted-foreground">Pending</p>
+                  <p className="text-sm text-muted-foreground font-medium">Pending</p>
                 </div>
-                <Timer className="w-8 h-8 text-orange-500/20" />
+                <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+                  <Timer className="w-6 h-6 text-orange-500" />
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-purple-500 hover:shadow-lg transition-all duration-300 animate-fade-in">
+          <Card className="border-l-4 border-l-purple-500 hover:shadow-xl hover:scale-105 transition-all duration-300 animate-fade-in bg-gradient-to-br from-purple-50/50 to-white">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-2xl font-bold text-purple-500">{studentStats.averageRating}</p>
-                  <p className="text-sm text-muted-foreground">Avg Rating</p>
+                  <p className="text-sm text-muted-foreground font-medium">Avg Rating</p>
                 </div>
-                <Star className="w-8 h-8 text-purple-500/20" />
+                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                  <Star className="w-6 h-6 text-purple-500" />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -382,31 +392,44 @@ const StudentView = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="book" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="book" className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              Book Session
-            </TabsTrigger>
-            <TabsTrigger value="subjects" className="flex items-center gap-2">
-              <GraduationCap className="w-4 h-4" />
-              Subjects
-            </TabsTrigger>
-            <TabsTrigger value="sessions" className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              My Sessions
-            </TabsTrigger>
-          </TabsList>
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-primary/10">
+            <TabsList className="grid w-full grid-cols-3 bg-transparent">
+              <TabsTrigger 
+                value="book" 
+                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+              >
+                <BookOpen className="w-4 h-4" />
+                Book Session
+              </TabsTrigger>
+              <TabsTrigger 
+                value="subjects" 
+                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+              >
+                <GraduationCap className="w-4 h-4" />
+                Subjects
+              </TabsTrigger>
+              <TabsTrigger 
+                value="sessions" 
+                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
+              >
+                <FileText className="w-4 h-4" />
+                My Sessions
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Book Session Tab */}
           <TabsContent value="book" className="space-y-6">
             <div className="grid lg:grid-cols-2 gap-6">
-              <Card className="shadow-lg animate-fade-in">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-primary" />
+              <Card className="shadow-xl border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 animate-fade-in bg-gradient-to-br from-white to-primary/5">
+                <CardHeader className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-t-lg">
+                  <CardTitle className="flex items-center gap-2 text-primary">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                      <BookOpen className="w-4 h-4 text-primary" />
+                    </div>
                     Book a Tutoring Session
                   </CardTitle>
-                  <CardDescription>Select a subject and schedule your session</CardDescription>
+                  <CardDescription className="text-primary/80 font-medium">Select a subject and schedule your session</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-4">
@@ -472,13 +495,15 @@ const StudentView = () => {
                 </CardContent>
               </Card>
 
-              <Card className="shadow-lg animate-fade-in">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-primary" />
+              <Card className="shadow-xl border-2 border-accent/20 hover:border-accent/40 transition-all duration-300 animate-fade-in bg-gradient-to-br from-white to-accent/5">
+                <CardHeader className="bg-gradient-to-r from-accent/10 to-primary/10 rounded-t-lg">
+                  <CardTitle className="flex items-center gap-2 text-accent">
+                    <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
+                      <TrendingUp className="w-4 h-4 text-accent" />
+                    </div>
                     Your Progress
                   </CardTitle>
-                  <CardDescription>Track your learning journey</CardDescription>
+                  <CardDescription className="text-accent/80 font-medium">Track your learning journey</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-3">

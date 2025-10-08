@@ -154,6 +154,30 @@ All colors MUST be HSL.
     background-size: 200% 100%;
     animation: shimmer 2s infinite;
   }
+
+  .animate-highlight {
+    animation: highlight 2s ease-in-out infinite;
+  }
+
+  .animate-glow {
+    animation: glow 3s ease-in-out infinite;
+  }
+
+  .block-highlight {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .block-highlight::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: slideHighlight 3s ease-in-out infinite;
+  }
 }
 
 @keyframes fadeIn {
@@ -209,6 +233,36 @@ All colors MUST be HSL.
   }
   100% {
     background-position: 200% 0;
+  }
+}
+
+@keyframes highlight {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.4);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(168, 85, 247, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.6), 0 0 30px rgba(168, 85, 247, 0.4);
+  }
+}
+
+@keyframes slideHighlight {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
   }
 }
 
