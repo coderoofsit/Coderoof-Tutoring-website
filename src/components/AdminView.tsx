@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -63,73 +62,83 @@ const AdminView = () => {
     fetchRequests();
     fetchTeachers();
     fetchStudents();
-    setupRealtimeSubscription();
   }, []);
 
   const fetchRequests = async () => {
-    const { data, error } = await supabase
-      .from("session_requests")
-      .select(`
-        *,
-        subjects (name),
-        teachers (name)
-      `)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      toast.error("Failed to load requests");
-    } else {
-      setRequests(data || []);
-    }
+    // Mock data for demo purposes
+    const mockRequests: SessionRequest[] = [
+      {
+        id: "1",
+        student_name: "John Doe",
+        subject_id: "1",
+        topic: "Calculus Integration",
+        session_date: "2024-01-15",
+        session_time: "10:00",
+        status: "Pending",
+        teacher_id: null,
+        subjects: { name: "Mathematics" },
+        teachers: null,
+        created_at: "2024-01-10T10:00:00Z"
+      },
+      {
+        id: "2",
+        student_name: "Jane Smith",
+        subject_id: "2",
+        topic: "Organic Chemistry",
+        session_date: "2024-01-16",
+        session_time: "14:00",
+        status: "Approved",
+        teacher_id: "1",
+        subjects: { name: "Chemistry" },
+        teachers: { name: "Dr. Johnson" },
+        created_at: "2024-01-09T14:00:00Z"
+      }
+    ];
+    setRequests(mockRequests);
   };
 
   const fetchTeachers = async () => {
-    const { data, error } = await supabase
-      .from("teachers")
-      .select("*")
-      .order("name");
-
-    if (error) {
-      toast.error("Failed to load teachers");
-    } else {
-      setTeachers(data || []);
-    }
+    // Mock data for demo purposes
+    const mockTeachers: Teacher[] = [
+      {
+        id: "1",
+        name: "Dr. Johnson",
+        email: "dr.johnson@example.com",
+        subjects: [{ name: "Chemistry" }],
+        created_at: "2024-01-01T00:00:00Z"
+      },
+      {
+        id: "2",
+        name: "Prof. Williams",
+        email: "prof.williams@example.com",
+        subjects: [{ name: "Mathematics" }],
+        created_at: "2024-01-01T00:00:00Z"
+      }
+    ];
+    setTeachers(mockTeachers);
   };
 
   const fetchStudents = async () => {
-    const { data, error } = await supabase
-      .from("session_requests")
-      .select(`
-        user_id,
-        student_name,
-        created_at,
-        status
-      `);
-
-    if (error) {
-      toast.error("Failed to load students");
-    } else {
-      // Process student data
-      const studentMap = new Map();
-      data?.forEach((request) => {
-        if (!studentMap.has(request.user_id)) {
-          studentMap.set(request.user_id, {
-            id: request.user_id,
-            name: request.student_name,
-            email: `student${request.user_id.slice(0, 8)}@example.com`,
-            total_sessions: 0,
-            active_sessions: 0,
-            last_activity: request.created_at,
-          });
-        }
-        const student = studentMap.get(request.user_id);
-        student.total_sessions++;
-        if (request.status === "Approved") {
-          student.active_sessions++;
-        }
-      });
-      setStudents(Array.from(studentMap.values()));
-    }
+    // Mock data for demo purposes
+    const mockStudents: Student[] = [
+      {
+        id: "1",
+        name: "John Doe",
+        email: "john.doe@example.com",
+        total_sessions: 3,
+        active_sessions: 1,
+        last_activity: "2024-01-10T10:00:00Z"
+      },
+      {
+        id: "2",
+        name: "Jane Smith",
+        email: "jane.smith@example.com",
+        total_sessions: 2,
+        active_sessions: 2,
+        last_activity: "2024-01-09T14:00:00Z"
+      }
+    ];
+    setStudents(mockStudents);
   };
 
   const addTeacher = async () => {
@@ -138,43 +147,20 @@ const AdminView = () => {
       return;
     }
 
-    const { error } = await supabase
-      .from("teachers")
-      .insert({
-        name: newTeacherName,
-        email: newTeacherEmail || null,
-      });
-
-    if (error) {
-      toast.error("Failed to add teacher");
-    } else {
-      toast.success("Teacher added successfully!");
-      setNewTeacherName("");
-      setNewTeacherEmail("");
-      setIsAddingTeacher(false);
-      fetchTeachers();
-    }
-  };
-
-  const setupRealtimeSubscription = () => {
-    const channel = supabase
-      .channel("admin_session_requests")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "session_requests",
-        },
-        () => {
-          fetchRequests();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
+    // Mock adding teacher - in a real app, you'd save to your database
+    const newTeacher: Teacher = {
+      id: Date.now().toString(),
+      name: newTeacherName,
+      email: newTeacherEmail || undefined,
+      subjects: [],
+      created_at: new Date().toISOString()
     };
+
+    setTeachers(prev => [...prev, newTeacher]);
+    toast.success("Teacher added successfully!");
+    setNewTeacherName("");
+    setNewTeacherEmail("");
+    setIsAddingTeacher(false);
   };
 
   const handleApprove = async (requestId: string) => {
@@ -184,39 +170,35 @@ const AdminView = () => {
       return;
     }
 
-    const { error } = await supabase
-      .from("session_requests")
-      .update({
-        status: "Approved",
-        teacher_id: teacherId,
-      })
-      .eq("id", requestId);
-
-    if (error) {
-      toast.error("Failed to approve request");
-    } else {
-      toast.success("Session approved successfully!");
-      setTeacherAssignments((prev) => {
-        const newAssignments = { ...prev };
-        delete newAssignments[requestId];
-        return newAssignments;
-      });
-    }
+    // Mock approval - in a real app, you'd update your database
+    setRequests(prev => prev.map(req => 
+      req.id === requestId 
+        ? { 
+            ...req, 
+            status: "Approved", 
+            teacher_id: teacherId,
+            teachers: teachers.find(t => t.id === teacherId) ? { name: teachers.find(t => t.id === teacherId)!.name } : null
+          }
+        : req
+    ));
+    
+    toast.success("Session approved successfully!");
+    setTeacherAssignments((prev) => {
+      const newAssignments = { ...prev };
+      delete newAssignments[requestId];
+      return newAssignments;
+    });
   };
 
   const handleReject = async (requestId: string) => {
-    const { error } = await supabase
-      .from("session_requests")
-      .update({
-        status: "Rejected",
-      })
-      .eq("id", requestId);
-
-    if (error) {
-      toast.error("Failed to reject request");
-    } else {
-      toast.success("Session rejected");
-    }
+    // Mock rejection - in a real app, you'd update your database
+    setRequests(prev => prev.map(req => 
+      req.id === requestId 
+        ? { ...req, status: "Rejected" }
+        : req
+    ));
+    
+    toast.success("Session rejected");
   };
 
   const getStatusBadge = (status: string) => {

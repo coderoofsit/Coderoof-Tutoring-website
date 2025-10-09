@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,46 +15,20 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [studentName, setStudentName] = useState("");
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate("/");
-      }
-    };
-    checkUser();
-  }, [navigate]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Demo authentication - in a real app, you'd implement your own auth logic
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) throw error;
-
+        // Simulate login
         toast.success("Successfully logged in!");
-        navigate("/");
+        navigate("/student");
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-            data: {
-              student_name: studentName,
-            },
-          },
-        });
-
-        if (error) throw error;
-
-        toast.success("Account created! Please check your email to verify your account.");
+        // Simulate signup
+        toast.success("Account created! You can now log in.");
+        setIsLogin(true);
       }
     } catch (error: any) {
       toast.error(error.message || "An error occurred");

@@ -29,14 +29,7 @@ cd tutor-dashboard
 npm install
 ```
 
-3. Set up environment variables:
-Create a `.env` file in the root directory and add your Supabase credentials:
-```
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
-```
-
-4. Start the development server:
+3. Start the development server:
 ```bash
 npm run dev
 ```
@@ -48,7 +41,6 @@ The application will be available at `http://localhost:5173` (or the next availa
 - **Frontend**: React 18, TypeScript, Vite
 - **UI Components**: shadcn/ui, Radix UI
 - **Styling**: Tailwind CSS
-- **Backend**: Supabase
 - **State Management**: TanStack Query
 - **Routing**: React Router DOM
 - **Icons**: Lucide React
@@ -66,8 +58,6 @@ src/
 │   ├── Auth.tsx        # Authentication page
 │   ├── Index.tsx       # Main dashboard
 │   └── NotFound.tsx    # 404 page
-├── integrations/       # External service integrations
-│   └── supabase/       # Supabase client and types
 ├── lib/                # Utility functions
 └── hooks/              # Custom React hooks
 ```

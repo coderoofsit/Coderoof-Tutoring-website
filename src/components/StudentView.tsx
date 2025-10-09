@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -71,38 +70,59 @@ const StudentView = () => {
   useEffect(() => {
     fetchSubjects();
     fetchRequests();
-    setupRealtimeSubscription();
     loadStudentName();
   }, []);
 
-  const loadStudentName = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user?.user_metadata?.student_name) {
-      setStudentName(user.user_metadata.student_name);
-    } else {
-      setStudentName(user?.email?.split('@')[0] || "Student");
-    }
+  const loadStudentName = () => {
+    // Mock student name - in a real app, you'd get this from your auth system
+    setStudentName("Student");
   };
 
   const fetchSubjects = async () => {
-    const { data, error } = await supabase
-      .from("subjects")
-      .select("*")
-      .order("name");
-
-    if (error) {
-      toast.error("Failed to load subjects");
-    } else {
-      // Enhance subjects with descriptions and metadata
-      const enhancedSubjects = (data || []).map(subject => ({
-        ...subject,
-        description: getSubjectDescription(subject.name),
-        icon: getSubjectIcon(subject.name),
-        difficulty: getSubjectDifficulty(subject.name),
-        category: getSubjectCategory(subject.name)
-      }));
-      setSubjects(enhancedSubjects);
-    }
+    // Mock subjects data for demo purposes
+    const mockSubjects: Subject[] = [
+      {
+        id: "1",
+        name: "Mathematics",
+        description: "Master fundamental concepts from algebra to calculus. Build problem-solving skills and mathematical reasoning.",
+        icon: Calculator,
+        difficulty: "Intermediate",
+        category: "STEM"
+      },
+      {
+        id: "2",
+        name: "Physics",
+        description: "Explore the laws of nature through experiments and theory. Understand motion, energy, and the universe.",
+        icon: Atom,
+        difficulty: "Advanced",
+        category: "STEM"
+      },
+      {
+        id: "3",
+        name: "Chemistry",
+        description: "Discover the building blocks of matter. Learn about atoms, molecules, and chemical reactions.",
+        icon: Microscope,
+        difficulty: "Intermediate",
+        category: "STEM"
+      },
+      {
+        id: "4",
+        name: "Biology",
+        description: "Study living organisms and their interactions. From cells to ecosystems, understand life itself.",
+        icon: Heart,
+        difficulty: "Beginner",
+        category: "STEM"
+      },
+      {
+        id: "5",
+        name: "English",
+        description: "Develop communication skills through literature, writing, and critical thinking.",
+        icon: Book,
+        difficulty: "Beginner",
+        category: "Language Arts"
+      }
+    ];
+    setSubjects(mockSubjects);
   };
 
   const getSubjectDescription = (name: string) => {
@@ -170,25 +190,35 @@ const StudentView = () => {
   };
 
   const fetchRequests = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from("session_requests")
-      .select(`
-        *,
-        subjects (name),
-        teachers (name)
-      `)
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      toast.error("Failed to load your requests");
-    } else {
-      setRequests(data || []);
-      calculateStudentStats(data || []);
-    }
+    // Mock requests data for demo purposes
+    const mockRequests: SessionRequest[] = [
+      {
+        id: "1",
+        subject_id: "1",
+        topic: "Calculus Integration",
+        session_date: "2024-01-15",
+        session_time: "10:00",
+        status: "Pending",
+        teacher_id: null,
+        subjects: { name: "Mathematics" },
+        teachers: null,
+        created_at: "2024-01-10T10:00:00Z"
+      },
+      {
+        id: "2",
+        subject_id: "2",
+        topic: "Newton's Laws",
+        session_date: "2024-01-16",
+        session_time: "14:00",
+        status: "Approved",
+        teacher_id: "1",
+        subjects: { name: "Physics" },
+        teachers: { name: "Dr. Smith" },
+        created_at: "2024-01-09T14:00:00Z"
+      }
+    ];
+    setRequests(mockRequests);
+    calculateStudentStats(mockRequests);
   };
 
   const calculateStudentStats = (requests: SessionRequest[]) => {
@@ -215,75 +245,33 @@ const StudentView = () => {
     });
   };
 
-  const setupRealtimeSubscription = () => {
-    const channel = supabase
-      .channel("session_requests_changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "session_requests",
-        },
-        async (payload) => {
-          if (payload.eventType === "UPDATE" && payload.new.status === "Approved") {
-            const { data } = await supabase
-              .from("session_requests")
-              .select(`
-                *,
-                subjects (name),
-                teachers (name)
-              `)
-              .eq("id", payload.new.id)
-              .single();
-
-            if (data && data.teachers) {
-              const notificationText = `Your session for ${data.topic} on ${new Date(
-                data.session_date
-              ).toLocaleDateString()} at ${data.session_time} has been approved and assigned to ${
-                data.teachers.name
-              }!`;
-              setNotification(notificationText);
-              toast.success(notificationText);
-              setTimeout(() => setNotification(null), 8000);
-            }
-          }
-          fetchRequests();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const { error } = await supabase.from("session_requests").insert({
-        user_id: user.id,
-        student_name: studentName,
+      // Mock session request submission - in a real app, you'd save to your database
+      const newRequest: SessionRequest = {
+        id: Date.now().toString(),
         subject_id: selectedSubject,
         topic,
         session_date: sessionDate,
         session_time: sessionTime,
         status: "Pending",
-      });
+        teacher_id: null,
+        subjects: subjects.find(s => s.id === selectedSubject) ? { name: subjects.find(s => s.id === selectedSubject)!.name } : { name: "Unknown" },
+        teachers: null,
+        created_at: new Date().toISOString()
+      };
 
-      if (error) throw error;
-
+      setRequests(prev => [newRequest, ...prev]);
+      calculateStudentStats([newRequest, ...requests]);
+      
       toast.success("Session request submitted successfully!");
       setSelectedSubject("");
       setTopic("");
       setSessionDate("");
       setSessionTime("");
-      fetchRequests();
     } catch (error: any) {
       toast.error(error.message || "Failed to submit request");
     } finally {
