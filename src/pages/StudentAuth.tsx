@@ -15,18 +15,79 @@ const StudentAuth = () => {
   const [loading, setLoading] = useState(false);
   const [studentName, setStudentName] = useState("");
 
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Demo student authentication - in a real app, you'd implement your own auth logic
       if (isLogin) {
-        toast.success("Successfully logged in!");
-        navigate("/student");
+        // Login
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          localStorage.setItem("token", data.data.token);
+          localStorage.setItem("studentName", data.data.user.name);
+          toast.success("Successfully logged in!");
+
+          // Check if onboarding is completed
+          const profileResponse = await fetch(`${API_URL}/student-profile`, {
+            headers: {
+              Authorization: `Bearer ${data.data.token}`,
+            },
+          });
+
+          if (profileResponse.ok) {
+            const profileData = await profileResponse.json();
+            if (profileData.data && profileData.data.onboardingCompleted) {
+              navigate("/student");
+            } else {
+              navigate("/onboarding");
+            }
+          } else {
+            navigate("/onboarding");
+          }
+        } else {
+          toast.error(data.message || "Login failed");
+        }
       } else {
-        toast.success("Account created! You can now log in.");
-        setIsLogin(true);
+        // Sign up
+        const response = await fetch(`${API_URL}/auth/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: studentName,
+            email,
+            password,
+            role: "student",
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          localStorage.setItem("token", data.data.token);
+          localStorage.setItem("studentName", studentName);
+          toast.success("Account created successfully!");
+          // Redirect to onboarding after signup
+          navigate("/onboarding");
+        } else {
+          toast.error(data.message || "Signup failed");
+        }
       }
     } catch (error: any) {
       toast.error(error.message || "An error occurred");

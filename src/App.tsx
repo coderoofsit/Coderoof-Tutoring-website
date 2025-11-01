@@ -11,6 +11,7 @@ import AdminAuth from "./pages/AdminAuth";
 import StudentAuth from "./pages/StudentAuth";
 import AdminPage from "./pages/AdminPage";
 import StudentPage from "./pages/StudentPage";
+import OnboardingPage from "./pages/OnboardingPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/auth/admin" element={<AdminAuth />} />
           <Route path="/auth/student" element={<StudentAuth />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/student" element={<StudentPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

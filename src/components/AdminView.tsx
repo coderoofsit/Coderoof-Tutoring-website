@@ -31,6 +31,11 @@ interface Student {
   total_sessions: number;
   active_sessions: number;
   last_activity: string;
+  profile?: {
+    goals: string[];
+    selectedSubjects: string[];
+    onboardingCompleted: boolean;
+  };
 }
 
 interface SessionRequest {
@@ -118,8 +123,10 @@ const AdminView = () => {
     setTeachers(mockTeachers);
   };
 
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
   const fetchStudents = async () => {
-    // Mock data for demo purposes
+    // Mock data for demo purposes - in production, fetch from API
     const mockStudents: Student[] = [
       {
         id: "1",
@@ -127,7 +134,12 @@ const AdminView = () => {
         email: "john.doe@example.com",
         total_sessions: 3,
         active_sessions: 1,
-        last_activity: "2024-01-10T10:00:00Z"
+        last_activity: "2024-01-10T10:00:00Z",
+        profile: {
+          goals: ["homework", "exam-prep"],
+          selectedSubjects: ["mathematics", "physics"],
+          onboardingCompleted: true
+        }
       },
       {
         id: "2",
@@ -135,10 +147,40 @@ const AdminView = () => {
         email: "jane.smith@example.com",
         total_sessions: 2,
         active_sessions: 2,
-        last_activity: "2024-01-09T14:00:00Z"
+        last_activity: "2024-01-09T14:00:00Z",
+        profile: {
+          goals: ["catch-up", "new-skill"],
+          selectedSubjects: ["chemistry", "biology", "english"],
+          onboardingCompleted: true
+        }
       }
     ];
-    setStudents(mockStudents);
+    
+    // Try to fetch actual profiles for each student
+    const studentsWithProfiles = await Promise.all(
+      mockStudents.map(async (student) => {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await fetch(`${API_URL}/student-profile/${student.id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (response.ok) {
+            const profileData = await response.json();
+            return {
+              ...student,
+              profile: profileData.data || student.profile
+            };
+          }
+        } catch (error) {
+          console.error(`Error fetching profile for student ${student.id}:`, error);
+        }
+        return student;
+      })
+    );
+    
+    setStudents(studentsWithProfiles);
   };
 
   const addTeacher = async () => {
@@ -381,11 +423,24 @@ const AdminView = () => {
                               {getStatusBadge(request.status)}
                             </div>
 
-                            <div className="bg-secondary/50 p-4 rounded-lg">
+                            <div className="bg-secondary/50 p-4 rounded-lg space-y-2">
                               <p className="text-sm font-medium flex items-center gap-2">
                                 <BookOpen className="w-4 h-4 text-primary" />
                                 <span className="font-semibold">Topic:</span> {request.topic}
                               </p>
+                              {/* Show student goals and subjects if available */}
+                              {students.find(s => s.name === request.student_name)?.profile && (
+                                <div className="mt-2 pt-2 border-t border-border/50 space-y-1">
+                                  <p className="text-xs text-muted-foreground">Student Goals:</p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {students.find(s => s.name === request.student_name)?.profile?.goals?.map((goal: string) => (
+                                      <Badge key={goal} variant="outline" className="text-xs">
+                                        {goal.replace("-", " ")}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                             </div>
 
                             <div className="flex items-center gap-6 text-sm text-muted-foreground">
@@ -431,9 +486,10 @@ const AdminView = () => {
                                   size="sm"
                                   onClick={() => handleApprove(request.id)}
                                   className="bg-green-600 hover:bg-green-700 text-white"
+                                  disabled={!teacherAssignments[request.id]}
                                 >
                                   <Check className="w-4 h-4 mr-1" />
-                                  Approve
+                                  Approve & Assign
                                 </Button>
                                 <Button
                                   size="sm"
@@ -588,6 +644,46 @@ const AdminView = () => {
                               <p className="text-sm text-muted-foreground">{student.email}</p>
                             </div>
                           </div>
+                          
+                          {/* Student Profile Information */}
+                          {student.profile && student.profile.onboardingCompleted && (
+                            <div className="space-y-2 p-3 bg-primary/5 rounded-lg border border-primary/10">
+                              <div>
+                                <p className="text-xs font-semibold text-primary mb-1">Goals:</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {student.profile.goals && student.profile.goals.length > 0 ? (
+                                    student.profile.goals.map((goal: string) => (
+                                      <Badge key={goal} variant="secondary" className="text-xs">
+                                        {goal.replace("-", " ")}
+                                      </Badge>
+                                    ))
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground">No goals set</span>
+                                  )}
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-xs font-semibold text-primary mb-1">Subjects:</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {student.profile.selectedSubjects && student.profile.selectedSubjects.length > 0 ? (
+                                    student.profile.selectedSubjects.slice(0, 3).map((subject: string) => (
+                                      <Badge key={subject} variant="outline" className="text-xs">
+                                        {subject.replace("-", " ")}
+                                      </Badge>
+                                    ))
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground">No subjects selected</span>
+                                  )}
+                                  {student.profile.selectedSubjects && student.profile.selectedSubjects.length > 3 && (
+                                    <Badge variant="outline" className="text-xs">
+                                      +{student.profile.selectedSubjects.length - 3} more
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
                           <div className="grid grid-cols-2 gap-2 text-sm">
                             <div className="text-center p-2 bg-blue-50 rounded">
                               <p className="font-semibold text-blue-600">{student.total_sessions}</p>
