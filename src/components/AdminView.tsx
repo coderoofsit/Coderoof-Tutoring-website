@@ -41,6 +41,8 @@ interface Student {
 interface SessionRequest {
   id: string;
   student_name: string;
+  student_email?: string;
+  student_id?: string;
   subject_id: string;
   topic: string;
   session_date: string;
@@ -63,6 +65,8 @@ const AdminView = () => {
   const [newTeacherName, setNewTeacherName] = useState("");
   const [newTeacherEmail, setNewTeacherEmail] = useState("");
 
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
   useEffect(() => {
     fetchRequests();
     fetchTeachers();
@@ -70,117 +74,157 @@ const AdminView = () => {
   }, []);
 
   const fetchRequests = async () => {
-    // Mock data for demo purposes
-    const mockRequests: SessionRequest[] = [
-      {
-        id: "1",
-        student_name: "John Doe",
-        subject_id: "1",
-        topic: "Calculus Integration",
-        session_date: "2024-01-15",
-        session_time: "10:00",
-        status: "Pending",
-        teacher_id: null,
-        subjects: { name: "Mathematics" },
-        teachers: null,
-        created_at: "2024-01-10T10:00:00Z"
-      },
-      {
-        id: "2",
-        student_name: "Jane Smith",
-        subject_id: "2",
-        topic: "Organic Chemistry",
-        session_date: "2024-01-16",
-        session_time: "14:00",
-        status: "Approved",
-        teacher_id: "1",
-        subjects: { name: "Chemistry" },
-        teachers: { name: "Dr. Johnson" },
-        created_at: "2024-01-09T14:00:00Z"
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Authentication required");
+        return;
       }
-    ];
-    setRequests(mockRequests);
+
+      const response = await fetch(`${API_URL}/sessions/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          // Transform the data to match the SessionRequest interface
+          const transformedRequests: SessionRequest[] = data.data.map((session: any) => {
+            const studentId = typeof session.studentId === 'object' ? session.studentId._id : session.studentId;
+            const studentName = typeof session.studentId === 'object' ? session.studentId.name : '';
+            const studentEmail = typeof session.studentId === 'object' ? session.studentId.email : '';
+            
+            const subjectId = typeof session.subjectId === 'object' ? session.subjectId._id : session.subjectId;
+            const subjectName = typeof session.subjectId === 'object' ? session.subjectId.name : '';
+            
+            const teacherId = session.teacherId 
+              ? (typeof session.teacherId === 'object' ? session.teacherId._id : session.teacherId)
+              : null;
+            const teacherName = session.teacherId && typeof session.teacherId === 'object' 
+              ? session.teacherId.name 
+              : null;
+
+            return {
+              id: session._id,
+              student_name: studentName,
+              student_email: studentEmail,
+              student_id: studentId,
+              subject_id: subjectId,
+              topic: session.topic,
+              session_date: new Date(session.sessionDate).toISOString().split('T')[0],
+              session_time: session.sessionTime,
+              status: session.status,
+              teacher_id: teacherId,
+              subjects: { name: subjectName },
+              teachers: teacherName ? { name: teacherName } : null,
+              created_at: session.createdAt
+            };
+          });
+          setRequests(transformedRequests);
+        }
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || "Failed to fetch session requests");
+      }
+    } catch (error: any) {
+      console.error("Error fetching requests:", error);
+      toast.error("Failed to fetch session requests");
+    }
   };
 
   const fetchTeachers = async () => {
-    // Mock data for demo purposes
-    const mockTeachers: Teacher[] = [
-      {
-        id: "1",
-        name: "Dr. Johnson",
-        email: "dr.johnson@example.com",
-        subjects: [{ name: "Chemistry" }],
-        created_at: "2024-01-01T00:00:00Z"
-      },
-      {
-        id: "2",
-        name: "Prof. Williams",
-        email: "prof.williams@example.com",
-        subjects: [{ name: "Mathematics" }],
-        created_at: "2024-01-01T00:00:00Z"
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Authentication required");
+        return;
       }
-    ];
-    setTeachers(mockTeachers);
+
+      const response = await fetch(`${API_URL}/teachers`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          // Transform the data to match the Teacher interface
+          // Note: We use userId as the ID because Session model expects userId for teacherId
+          const transformedTeachers: Teacher[] = data.data.map((teacher: any) => {
+            const userId = typeof teacher.userId === 'object' ? teacher.userId._id : teacher.userId;
+            const userName = typeof teacher.userId === 'object' ? teacher.userId.name : '';
+            const userEmail = typeof teacher.userId === 'object' ? teacher.userId.email : '';
+            
+            const subjects = Array.isArray(teacher.subjects) 
+              ? teacher.subjects.map((subj: any) => ({
+                  name: typeof subj === 'object' ? subj.name : subj
+                }))
+              : [];
+
+            return {
+              id: userId.toString(), // Use userId as ID for session assignment
+              name: userName,
+              email: userEmail,
+              subjects: subjects,
+              created_at: teacher.createdAt
+            };
+          });
+          setTeachers(transformedTeachers);
+        }
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || "Failed to fetch teachers");
+      }
+    } catch (error: any) {
+      console.error("Error fetching teachers:", error);
+      toast.error("Failed to fetch teachers");
+    }
   };
 
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-
   const fetchStudents = async () => {
-    // Mock data for demo purposes - in production, fetch from API
-    const mockStudents: Student[] = [
-      {
-        id: "1",
-        name: "John Doe",
-        email: "john.doe@example.com",
-        total_sessions: 3,
-        active_sessions: 1,
-        last_activity: "2024-01-10T10:00:00Z",
-        profile: {
-          goals: ["homework", "exam-prep"],
-          selectedSubjects: ["mathematics", "physics"],
-          onboardingCompleted: true
-        }
-      },
-      {
-        id: "2",
-        name: "Jane Smith",
-        email: "jane.smith@example.com",
-        total_sessions: 2,
-        active_sessions: 2,
-        last_activity: "2024-01-09T14:00:00Z",
-        profile: {
-          goals: ["catch-up", "new-skill"],
-          selectedSubjects: ["chemistry", "biology", "english"],
-          onboardingCompleted: true
-        }
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Authentication required");
+        return;
       }
-    ];
-    
-    // Try to fetch actual profiles for each student
-    const studentsWithProfiles = await Promise.all(
-      mockStudents.map(async (student) => {
-        try {
-          const token = localStorage.getItem("token");
-          const response = await fetch(`${API_URL}/student-profile/${student.id}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          if (response.ok) {
-            const profileData = await response.json();
-            return {
-              ...student,
-              profile: profileData.data || student.profile
-            };
-          }
-        } catch (error) {
-          console.error(`Error fetching profile for student ${student.id}:`, error);
+
+      const response = await fetch(`${API_URL}/admin/students`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          // Transform the data to match the Student interface
+          const transformedStudents: Student[] = data.data.map((student: any) => ({
+            id: student._id,
+            name: student.name,
+            email: student.email,
+            total_sessions: student.totalSessions || 0,
+            active_sessions: student.activeSessions || 0,
+            last_activity: student.lastActivity || student.createdAt,
+            profile: student.profile ? {
+              goals: student.profile.goals || [],
+              selectedSubjects: student.profile.selectedSubjects || [],
+              onboardingCompleted: student.profile.onboardingCompleted || false
+            } : undefined
+          }));
+          setStudents(transformedStudents);
         }
-        return student;
-      })
-    );
-    
-    setStudents(studentsWithProfiles);
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || "Failed to fetch students");
+      }
+    } catch (error: any) {
+      console.error("Error fetching students:", error);
+      toast.error("Failed to fetch students");
+    }
   };
 
   const addTeacher = async () => {
@@ -212,35 +256,81 @@ const AdminView = () => {
       return;
     }
 
-    // Mock approval - in a real app, you'd update your database
-    setRequests(prev => prev.map(req => 
-      req.id === requestId 
-        ? { 
-            ...req, 
-            status: "Approved", 
-            teacher_id: teacherId,
-            teachers: teachers.find(t => t.id === teacherId) ? { name: teachers.find(t => t.id === teacherId)!.name } : null
-          }
-        : req
-    ));
-    
-    toast.success("Session approved successfully!");
-    setTeacherAssignments((prev) => {
-      const newAssignments = { ...prev };
-      delete newAssignments[requestId];
-      return newAssignments;
-    });
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Authentication required");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/sessions/${requestId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          status: "Approved",
+          teacherId: teacherId
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          toast.success("Session approved successfully!");
+          // Refresh requests list
+          fetchRequests();
+          setTeacherAssignments((prev) => {
+            const newAssignments = { ...prev };
+            delete newAssignments[requestId];
+            return newAssignments;
+          });
+        }
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || "Failed to approve session");
+      }
+    } catch (error: any) {
+      console.error("Error approving session:", error);
+      toast.error("Failed to approve session");
+    }
   };
 
   const handleReject = async (requestId: string) => {
-    // Mock rejection - in a real app, you'd update your database
-    setRequests(prev => prev.map(req => 
-      req.id === requestId 
-        ? { ...req, status: "Rejected" }
-        : req
-    ));
-    
-    toast.success("Session rejected");
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Authentication required");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/sessions/${requestId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          status: "Rejected"
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          toast.success("Session rejected");
+          // Refresh requests list
+          fetchRequests();
+        }
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || "Failed to reject session");
+      }
+    } catch (error: any) {
+      console.error("Error rejecting session:", error);
+      toast.error("Failed to reject session");
+    }
   };
 
   const getStatusBadge = (status: string) => {

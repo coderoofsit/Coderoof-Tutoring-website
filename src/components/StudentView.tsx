@@ -16,7 +16,7 @@ import {
   Heart, Music, Palette, Code, Book, Microscope,
   History, MapPin, Activity, CheckCircle, XCircle,
   Timer, User, MessageSquare, Lightbulb, Search,
-  LogOut
+  ArrowRight, ArrowLeft, CheckCircle2, ChevronRight
 } from "lucide-react";
 
 interface Subject {
@@ -71,6 +71,700 @@ interface RecommendedTutor {
 }
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
+// Booking Wizard Component
+interface BookingWizardProps {
+  subjects: Subject[];
+  subjectsLoading: boolean;
+  selectedSubject: string;
+  setSelectedSubject: (value: string) => void;
+  sessionDate: string;
+  setSessionDate: (value: string) => void;
+  sessionTime: string;
+  setSessionTime: (value: string) => void;
+  topic: string;
+  setTopic: (value: string) => void;
+  handleSubmit: (e: React.FormEvent) => Promise<boolean | void>;
+  loading: boolean;
+  getSubjectIcon: (name: string) => any;
+  getSubjectCategory: (name: string) => string;
+}
+
+const BookingWizard = ({
+  subjects,
+  subjectsLoading,
+  selectedSubject,
+  setSelectedSubject,
+  sessionDate,
+  setSessionDate,
+  sessionTime,
+  setSessionTime,
+  topic,
+  setTopic,
+  handleSubmit,
+  loading,
+  getSubjectIcon,
+  getSubjectCategory
+}: BookingWizardProps) => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [subjectSearch, setSubjectSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [unavailableSlots, setUnavailableSlots] = useState<string[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [scheduleSubStep, setScheduleSubStep] = useState<'date' | 'time'>('date');
+
+  const totalSteps = 4;
+
+  const filteredSubjects = subjects.filter(subject => {
+    const matchesSearch = subject.name.toLowerCase().includes(subjectSearch.toLowerCase()) ||
+      (subject.description?.toLowerCase().includes(subjectSearch.toLowerCase()));
+    const matchesCategory = selectedCategory === "all" || 
+      getSubjectCategory(subject.name) === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const categories = ["all", ...Array.from(new Set(subjects.map(s => getSubjectCategory(s.name))))];
+
+  const selectedSubjectData = subjects.find(s => s._id === selectedSubject);
+
+  const timeSlots = [
+    "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
+    "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
+    "18:00", "18:30", "19:00", "19:30", "20:00"
+  ];
+
+  const getNextAvailableDates = () => {
+    const dates = [];
+    const today = new Date();
+    for (let i = 0; i < 14; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      dates.push(date);
+    }
+    return dates;
+  };
+
+  const formatDateDisplay = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  };
+
+  // Fetch unavailable slots when date changes
+  useEffect(() => {
+    const fetchUnavailableSlots = async () => {
+      if (!sessionDate) {
+        setUnavailableSlots([]);
+        return;
+      }
+
+      setLoadingSlots(true);
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setUnavailableSlots([]);
+          return;
+        }
+
+        const response = await fetch(`${API_URL}/sessions/unavailable-slots?date=${sessionDate}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setUnavailableSlots(data.data.unavailableSlots || []);
+          }
+        } else {
+          setUnavailableSlots([]);
+        }
+      } catch (error) {
+        console.error("Error fetching unavailable slots:", error);
+        setUnavailableSlots([]);
+      } finally {
+        setLoadingSlots(false);
+      }
+    };
+
+    fetchUnavailableSlots();
+  }, [sessionDate]);
+
+  const handleNext = () => {
+    if (currentStep === 1 && !selectedSubject) {
+      toast.error("Please select a subject");
+      return;
+    }
+    if (currentStep === 2) {
+      if (!sessionDate) {
+        toast.error("Please select a date first");
+        return;
+      }
+      if (!sessionTime) {
+        toast.error("Please select a time slot");
+        return;
+      }
+      if (unavailableSlots.includes(sessionTime)) {
+        toast.error("The selected time slot is already booked and unavailable. Please choose another time.");
+        return;
+      }
+    }
+    if (currentStep === 3 && !topic.trim()) {
+      toast.error("Please provide topic details");
+      return;
+    }
+    setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+  };
+
+  const handleBack = () => {
+    // If in step 2 and on time selection, go back to date selection
+    if (currentStep === 2 && scheduleSubStep === 'time') {
+      setScheduleSubStep('date');
+      setSessionTime(""); // Clear time when going back to date selection
+    } else {
+      setCurrentStep(prev => Math.max(prev - 1, 1));
+      // Reset schedule sub-step when going back from step 2
+      if (currentStep === 3) {
+        setScheduleSubStep('date');
+      }
+    }
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const success = await handleSubmit(e);
+    if (success) {
+      // Reset wizard to first step
+      setCurrentStep(1);
+      setSubjectSearch("");
+      setSelectedCategory("all");
+      setScheduleSubStep('date');
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Progress Steps */}
+      <Card className="shadow-lg border-primary/20">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between mb-6">
+            {[1, 2, 3, 4].map((step) => (
+              <div key={step} className="flex items-center flex-1">
+                <div className="flex flex-col items-center flex-1">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
+                      step < currentStep
+                        ? "bg-green-500 text-white"
+                        : step === currentStep
+                        ? "bg-primary text-white scale-110"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {step < currentStep ? (
+                      <CheckCircle2 className="w-6 h-6" />
+                    ) : (
+                      step
+                    )}
+                  </div>
+                  <p className={`text-xs mt-2 text-center ${step === currentStep ? "font-medium text-primary" : "text-muted-foreground"}`}>
+                    {step === 1 && "Subject"}
+                    {step === 2 && "Schedule"}
+                    {step === 3 && "Details"}
+                    {step === 4 && "Confirm"}
+                  </p>
+                </div>
+                {step < totalSteps && (
+                  <div
+                    className={`h-1 flex-1 mx-2 transition-all ${
+                      step < currentStep ? "bg-green-500" : "bg-muted"
+                    }`}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Step Content */}
+      <Card className="shadow-xl border-2 border-primary/20">
+        <CardHeader className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-t-lg">
+          <CardTitle className="flex items-center gap-2">
+            <BookOpen className="w-6 h-6 text-primary" />
+            {currentStep === 1 && "Choose a Subject"}
+            {currentStep === 2 && "Select Date & Time"}
+            {currentStep === 3 && "Add Session Details"}
+            {currentStep === 4 && "Review & Confirm"}
+          </CardTitle>
+          <CardDescription>
+            {currentStep === 1 && "Select the subject you'd like help with"}
+            {currentStep === 2 && scheduleSubStep === 'date' && "First, select your preferred date"}
+            {currentStep === 2 && scheduleSubStep === 'time' && "Now, choose a time slot for your session"}
+            {currentStep === 3 && "Tell us what you'd like to focus on"}
+            {currentStep === 4 && "Review your booking details before submitting"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <form onSubmit={currentStep === 4 ? handleFormSubmit : (e) => { e.preventDefault(); handleNext(); }}>
+            {/* Step 1: Subject Selection */}
+            {currentStep === 1 && (
+              <div className="space-y-4">
+                {/* Search and Filter */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                      placeholder="Search subjects..."
+                      value={subjectSearch}
+                      onChange={(e) => setSubjectSearch(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Filter by category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat === "all" ? "All Categories" : cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Subject Grid */}
+                {subjectsLoading ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground">Loading subjects...</p>
+                  </div>
+                ) : filteredSubjects.length === 0 ? (
+                  <div className="text-center py-12">
+                    <GraduationCap className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">No subjects found</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-2">
+                    {filteredSubjects.map((subject) => {
+                      const IconComponent = getSubjectIcon(subject.name);
+                      const isSelected = selectedSubject === subject._id;
+                      return (
+                        <Card
+                          key={subject._id}
+                          className={`cursor-pointer transition-all hover:shadow-lg ${
+                            isSelected
+                              ? "border-2 border-primary bg-primary/5 ring-2 ring-primary/20"
+                              : "hover:border-primary/50"
+                          }`}
+                          onClick={() => setSelectedSubject(subject._id)}
+                        >
+                          <CardContent className="pt-4">
+                            <div className="flex items-start gap-3">
+                              <div
+                                className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                  isSelected ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"
+                                }`}
+                              >
+                                <IconComponent className="w-6 h-6" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-semibold text-base mb-1">{subject.name}</h4>
+                                <Badge variant="outline" className="text-xs mb-2">
+                                  {getSubjectCategory(subject.name)}
+                                </Badge>
+                                {subject.description && (
+                                  <p className="text-sm text-muted-foreground line-clamp-2">
+                                    {subject.description}
+                                  </p>
+                                )}
+                              </div>
+                              {isSelected && (
+                                <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Step 2: Date & Time Selection */}
+            {currentStep === 2 && (
+              <div className="space-y-6 -mx-6 px-6">
+                {/* Selected Subject Display */}
+                {selectedSubjectData && (
+                  <div className="bg-primary/5 p-4 rounded-lg border border-primary/20 w-full">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        {(() => {
+                          const IconComponent = getSubjectIcon(selectedSubjectData.name);
+                          return <IconComponent className="w-5 h-5 text-primary" />;
+                        })()}
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Selected Subject</p>
+                        <p className="font-semibold">{selectedSubjectData.name}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Date Selection */}
+                <div className="space-y-3 w-full">
+                  <Label className="text-base font-semibold flex items-center gap-2">
+                    <Calendar className="w-5 h-5" />
+                    Select Date
+                  </Label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 w-full">
+                    {getNextAvailableDates().map((date) => {
+                      const dateString = date.toISOString().split("T")[0];
+                      const isSelected = sessionDate === dateString;
+                      const isToday = dateString === new Date().toISOString().split("T")[0];
+                      return (
+                        <button
+                          key={dateString}
+                          type="button"
+                          onClick={() => {
+                            // If changing to a different date, clear the time
+                            if (sessionDate && sessionDate !== dateString) {
+                              setSessionTime("");
+                            }
+                            setSessionDate(dateString);
+                            // Automatically move to time selection after date is selected
+                            setScheduleSubStep('time');
+                          }}
+                          className={`p-3 rounded-lg border-2 transition-all text-center ${
+                            isSelected
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-muted hover:border-primary/50 hover:bg-primary/5"
+                          }`}
+                        >
+                          <p className="text-xs font-medium">{date.toLocaleDateString("en-US", { weekday: "short" })}</p>
+                          <p className="text-lg font-bold mt-1">{date.getDate()}</p>
+                          <p className="text-xs">{date.toLocaleDateString("en-US", { month: "short" })}</p>
+                          {isToday && (
+                            <p className="text-xs mt-1 text-primary font-medium">Today</p>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <Input
+                    type="date"
+                    value={sessionDate}
+                    onChange={(e) => {
+                      // If changing to a different date, clear the time
+                      if (sessionDate && sessionDate !== e.target.value) {
+                        setSessionTime("");
+                      }
+                      setSessionDate(e.target.value);
+                      // Automatically move to time selection after date is selected
+                      if (e.target.value) {
+                        setScheduleSubStep('time');
+                      }
+                    }}
+                    min={new Date().toISOString().split("T")[0]}
+                    className="mt-4 w-full"
+                  />
+                </div>
+
+                {/* Show time selection only after date is selected */}
+                {scheduleSubStep === 'time' && sessionDate && (
+                  <>
+                    {/* Selected Date Display */}
+                    <div className="bg-primary/5 p-4 rounded-lg border border-primary/20">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Calendar className="w-5 h-5 text-primary" />
+                          <div>
+                            <p className="text-sm text-muted-foreground">Selected Date</p>
+                            <p className="font-semibold">{formatDateDisplay(sessionDate)}</p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setScheduleSubStep('date');
+                            setSessionDate("");
+                            setSessionTime("");
+                          }}
+                          className="text-xs"
+                        >
+                          Change Date
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Time Selection */}
+                    <div className="space-y-3">
+                  <Label className="text-base font-semibold flex items-center gap-2">
+                    <Clock className="w-5 h-5" />
+                    Select Time
+                    {loadingSlots && sessionDate && (
+                      <span className="text-xs text-muted-foreground ml-2">(Checking availability...)</span>
+                    )}
+                  </Label>
+                  <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 max-h-[300px] overflow-y-auto pr-2">
+                    {timeSlots.map((time) => {
+                      const isSelected = sessionTime === time;
+                      const isUnavailable = unavailableSlots.includes(time);
+                      return (
+                        <button
+                          key={time}
+                          type="button"
+                          onClick={() => {
+                            if (!isUnavailable) {
+                              setSessionTime(time);
+                            } else {
+                              toast.error("This time slot is already booked and unavailable");
+                            }
+                          }}
+                          disabled={isUnavailable}
+                          className={`p-3 rounded-lg border-2 transition-all text-sm font-medium ${
+                            isUnavailable
+                              ? "border-red-200 bg-red-50 text-red-400 cursor-not-allowed opacity-60"
+                              : isSelected
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-muted hover:border-primary/50 hover:bg-primary/5"
+                          }`}
+                          title={isUnavailable ? "This slot is already booked" : undefined}
+                        >
+                          {time}
+                          {isUnavailable && (
+                            <span className="block text-xs mt-1 text-red-500 font-normal">Unavailable</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <Input
+                    type="time"
+                    value={sessionTime}
+                    onChange={(e) => setSessionTime(e.target.value)}
+                    className="mt-4"
+                  />
+                    </div>
+                  </>
+                )}
+
+                {/* Show message if date not selected yet */}
+                {scheduleSubStep === 'date' && !sessionDate && (
+                  <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <div className="text-sm text-blue-900">
+                        <p className="font-medium mb-1">Select a date first</p>
+                        <p className="text-blue-700">Choose your preferred date to see available time slots</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Step 3: Topic Details */}
+            {currentStep === 3 && (
+              <div className="space-y-6">
+                {/* Session Summary */}
+                <div className="bg-gradient-to-r from-primary/5 to-accent/5 p-5 rounded-lg border border-primary/20">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        {selectedSubjectData && (() => {
+                          const IconComponent = getSubjectIcon(selectedSubjectData.name);
+                          return <IconComponent className="w-5 h-5 text-primary" />;
+                        })()}
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Subject</p>
+                        <p className="font-semibold">{selectedSubjectData?.name || "Not selected"}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Calendar className="w-5 h-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Date & Time</p>
+                        <p className="font-semibold">
+                          {formatDateDisplay(sessionDate) || "Not selected"} at {sessionTime || "Not selected"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Topic Input */}
+                <div className="space-y-3">
+                  <Label htmlFor="topic" className="text-base font-semibold flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5" />
+                    What would you like to focus on?
+                  </Label>
+                  <Textarea
+                    id="topic"
+                    placeholder="e.g., Reviewing Newton's Laws, Algebra problems, Essay writing, Exam preparation..."
+                    value={topic}
+                    onChange={(e) => setTopic(e.target.value)}
+                    rows={6}
+                    className="resize-none"
+                  />
+                  <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <Lightbulb className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                    <p>
+                      Be specific about topics, concepts, or areas you want help with. This helps us match you with the right tutor.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Topic Suggestions */}
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">Common topics:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {["Exam preparation", "Homework help", "Concept review", "Practice problems", "Assignment help"].map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        type="button"
+                        onClick={() => setTopic(prev => prev ? `${prev}, ${suggestion}` : suggestion)}
+                        className="px-3 py-1.5 text-sm bg-muted hover:bg-primary/10 rounded-full border border-muted-foreground/20 transition-colors"
+                      >
+                        + {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Review & Confirm */}
+            {currentStep === 4 && (
+              <div className="space-y-6">
+                <div className="bg-gradient-to-br from-green-50 to-primary/5 p-6 rounded-lg border-2 border-green-200">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
+                      <CheckCircle2 className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg">Ready to book your session!</h3>
+                      <p className="text-sm text-muted-foreground">Review your details below</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 bg-white/60 p-4 rounded-lg">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        {selectedSubjectData && (() => {
+                          const IconComponent = getSubjectIcon(selectedSubjectData.name);
+                          return <IconComponent className="w-6 h-6 text-primary" />;
+                        })()}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm text-muted-foreground">Subject</p>
+                        <p className="font-semibold text-lg">{selectedSubjectData?.name}</p>
+                        {selectedSubjectData?.description && (
+                          <p className="text-sm text-muted-foreground mt-1">{selectedSubjectData.description}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Calendar className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Date</p>
+                            <p className="font-semibold">{formatDateDisplay(sessionDate)}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Clock className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Time</p>
+                            <p className="font-semibold">{sessionTime}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t pt-4">
+                      <p className="text-sm text-muted-foreground mb-2">Topic Details</p>
+                      <p className="font-medium whitespace-pre-wrap">{topic}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-blue-900">
+                      <p className="font-medium mb-1">What happens next?</p>
+                      <ul className="list-disc list-inside space-y-1 text-blue-700">
+                        <li>Your session request will be reviewed by our team</li>
+                        <li>You'll receive a confirmation once a tutor is assigned</li>
+                        <li>Any updates will be sent to your email</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex items-center justify-between pt-6 border-t mt-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleBack}
+                disabled={currentStep === 1}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
+
+              {currentStep < totalSteps ? (
+                <Button
+                  type="submit"
+                  className="flex items-center gap-2"
+                >
+                  Next Step
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="flex items-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <Timer className="w-4 h-4 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      Confirm & Book Session
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 const StudentView = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -284,12 +978,15 @@ const StudentView = () => {
         const data = await response.json();
         if (data.success) {
           toast.success("Session request submitted successfully!");
+          // Reset form
           setSelectedSubject("");
           setTopic("");
           setSessionDate("");
           setSessionTime("");
           // Refresh sessions list
           fetchRequests();
+          // Reset wizard step (this will be handled by BookingWizard's state reset)
+          return true;
         }
       } else {
         const errorData = await response.json();
@@ -301,13 +998,9 @@ const StudentView = () => {
     } finally {
       setLoading(false);
     }
+    return false;
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("studentName");
-    window.location.href = "/auth/student";
-  };
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "destructive"> = {
@@ -395,10 +1088,6 @@ const StudentView = () => {
                 <GraduationCap className="w-5 h-5 text-primary" />
                 <span className="text-sm font-medium hidden sm:inline">Student Dashboard</span>
               </div>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
             </div>
           </div>
         </div>
@@ -496,127 +1185,22 @@ const StudentView = () => {
 
           {/* Book Session Tab */}
           <TabsContent value="book" className="space-y-6">
-            <div className="grid lg:grid-cols-2 gap-6">
-              <Card className="shadow-lg border-2 border-primary/20">
-                <CardHeader className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-primary">
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                      <BookOpen className="w-4 h-4 text-primary" />
-                    </div>
-                    Book a Tutoring Session
-                  </CardTitle>
-                  <CardDescription>Select a subject and schedule your session</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="subject">Subject</Label>
-                      <Select value={selectedSubject} onValueChange={setSelectedSubject} required>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a subject" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {subjectsLoading ? (
-                            <div className="p-2 text-center text-sm text-muted-foreground">Loading subjects...</div>
-                          ) : subjects.length === 0 ? (
-                            <div className="p-2 text-center text-sm text-muted-foreground">No subjects available</div>
-                          ) : (
-                            subjects.map((subject) => (
-                              <SelectItem key={subject._id} value={subject._id}>
-                                {subject.name}
-                              </SelectItem>
-                            ))
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="date">Date</Label>
-                        <Input
-                          id="date"
-                          type="date"
-                          value={sessionDate}
-                          onChange={(e) => setSessionDate(e.target.value)}
-                          min={new Date().toISOString().split("T")[0]}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="time">Time</Label>
-                        <Input
-                          id="time"
-                          type="time"
-                          value={sessionTime}
-                          onChange={(e) => setSessionTime(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="topic">Topic Details</Label>
-                      <Textarea
-                        id="topic"
-                        placeholder="e.g., Reviewing Newton's Laws, Algebra problems, Essay writing..."
-                        value={topic}
-                        onChange={(e) => setTopic(e.target.value)}
-                        required
-                        rows={3}
-                      />
-                    </div>
-
-                    <Button type="submit" className="w-full" disabled={loading || subjectsLoading}>
-                      {loading ? "Submitting..." : "Submit Request"}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-lg border-2 border-accent/20">
-                <CardHeader className="bg-gradient-to-r from-accent/10 to-primary/10 rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2 text-accent">
-                    <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
-                      <TrendingUp className="w-4 h-4 text-accent" />
-                    </div>
-                    Your Progress
-                  </CardTitle>
-                  <CardDescription>Track your learning journey</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-6 space-y-4">
-                  <div className="space-y-3">
-                    {studentStats.averageRating > 0 ? (
-                      <div className="flex items-center gap-2">
-                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                        <span className="text-sm font-medium">
-                          Average Rating: {studentStats.averageRating.toFixed(1)}/5
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Star className="w-4 h-4" />
-                        <span className="text-sm">No ratings yet</span>
-                      </div>
-                    )}
-                    
-                    {studentStats.favoriteSubject && studentStats.favoriteSubject !== "None" ? (
-                      <div className="flex items-center gap-2">
-                        <Target className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-medium">
-                          Favorite Subject: {studentStats.favoriteSubject}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Target className="w-4 h-4" />
-                        <span className="text-sm">No favorite subject yet</span>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <BookingWizard
+              subjects={subjects}
+              subjectsLoading={subjectsLoading}
+              selectedSubject={selectedSubject}
+              setSelectedSubject={setSelectedSubject}
+              sessionDate={sessionDate}
+              setSessionDate={setSessionDate}
+              sessionTime={sessionTime}
+              setSessionTime={setSessionTime}
+              topic={topic}
+              setTopic={setTopic}
+              handleSubmit={handleSubmit}
+              loading={loading}
+              getSubjectIcon={getSubjectIcon}
+              getSubjectCategory={getSubjectCategory}
+            />
           </TabsContent>
 
           {/* Subjects Tab */}
