@@ -46,7 +46,7 @@ export const siteConfig: SiteConfig = {
 		blurbPrimary:
 			"I am a New York-based tutor with a degree in Computer Science and minors in Physics and Statistics from New York University (NYU). With over 10 years of tutoring experience, I have helped students master complex topics, improve grades, and prepare effectively for exams.",
 		blurbSecondary:
-			"I understand that balancing study and work can be challenging — that’s why I offer flexible online sessions, exam help, and personalized support to fit your schedule and learning style.",
+			"I understand that balancing study and work can be challenging - that's why I offer flexible online sessions, exam help, and personalized support to fit your schedule and learning style.",
 	},
 };
 

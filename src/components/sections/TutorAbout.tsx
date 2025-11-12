@@ -31,7 +31,7 @@ const TutorAbout = () => {
                   With over <strong>{tutor.experienceYears}+ years of tutoring experience</strong>, I have helped students master complex topics, improve grades, and prepare effectively for exams.
                 </p>
                 <p className="text-lg leading-relaxed">
-                  I understand that balancing study and work can be challenging — that’s why I offer <strong>flexible online sessions</strong>, <strong>exam help</strong>, and <strong>personalized support</strong> to fit your schedule and learning style.
+                  I understand that balancing study and work can be challenging - that's why I offer <strong>flexible online sessions</strong>, <strong>exam help</strong>, and <strong>personalized support</strong> to fit your schedule and learning style.
                 </p>
                 <div className="flex flex-wrap gap-3 pt-2">
                   <span className="inline-flex items-center gap-2 text-sm text-gray-600"><MapPin className="h-4 w-4" /> {tutor.location}</span>
