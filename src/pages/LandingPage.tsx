@@ -30,6 +30,7 @@ import {
   Beaker
 } from "lucide-react";
 import TutorAbout from "@/components/sections/TutorAbout";
+import AppointmentForm from "@/components/sections/AppointmentForm";
 import siteConfig from "@/config/site";
 import Carousel from "./Carousel";
 import FlowingMenu from "./FlowingMenu";
@@ -167,6 +168,24 @@ const LandingPage = () => {
 
   // Single tutor site: remove multi-tutor list
 
+  const openBookingForm = () => {
+    if (typeof document === "undefined") return;
+    const bookingSection = document.getElementById("booking");
+    if (bookingSection) {
+      bookingSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.location.hash = "#booking";
+    }
+
+    const bookingForm = document.getElementById("booking-form");
+    if (bookingForm) {
+      const focusTarget = bookingForm.querySelector<HTMLElement>("input, select, textarea");
+      if (focusTarget) {
+        setTimeout(() => focusTarget.focus(), 400);
+      }
+    }
+  };
+
   const testimonials = [
     {
       name: "Alex Thompson",
@@ -237,12 +256,16 @@ const LandingPage = () => {
               <a href="#about" className="hover:text-indigo-600 transition-colors">About</a>
               <a href="#subjects" className="hover:text-indigo-600 transition-colors">What I teach</a>
               <a href="#process" className="hover:text-indigo-600 transition-colors">How it works</a>
-              <a href="#projects" className="hover:text-indigo-600 transition-colors">Project support</a>
+              <a href="#booking" className="hover:text-indigo-600 transition-colors">Book a session</a>
               <a href="#testimonials" className="hover:text-indigo-600 transition-colors">Testimonials</a>
             </div>
             <div className="flex items-center space-x-4">
               <span className="hidden md:inline text-sm text-gray-500">{siteConfig.tagLine}</span>
-              <Button onClick={() => (window.location.href = "#contact")} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              <Button
+                type="button"
+                onClick={openBookingForm}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
                 Contact
               </Button>
             </div>
@@ -426,7 +449,27 @@ const LandingPage = () => {
 
       {/* Expert Tutors Section removed for single tutor focus */}
 
-      {/* Project Support Section removed intentionally */}
+      <section id="booking" className="py-20 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 to-indigo-100/20"></div>
+          <div className="absolute inset-0 radial-overlay-c"></div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <ClipboardList className="h-4 w-4" />
+              Book a session
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+              Tell me what you need and secure your slot
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Share your goals, upload reference material, and choose the timing that fits. I will confirm details right away.
+            </p>
+          </div>
+          <AppointmentForm subjects={subjectCategories.map(({ title, topics }) => ({ title, topics }))} />
+        </div>
+      </section>
 
       {/* Testimonials Section */}
   <section id="testimonials" className="py-20 bg-gradient-to-br from-white via-indigo-50/20 to-purple-50/20 relative overflow-hidden">
