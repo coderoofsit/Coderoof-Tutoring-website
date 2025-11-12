@@ -1,15 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  BookOpen, 
-  Code, 
-  Coffee, 
-  Terminal, 
-  Brain, 
-  Globe, 
-  BarChart3, 
+import {
+  BookOpen,
+  Code,
+  Terminal,
+  Brain,
+  Globe,
+  BarChart3,
   Star,
   ArrowRight,
   MessageCircle,
@@ -21,52 +19,149 @@ import {
   Instagram,
   Lightbulb,
   Rocket,
-  PlayCircle
+  PlayCircle,
+  Calendar,
+  ClipboardList,
+  Clock,
+  CheckCircle,
+  Sigma,
+  Atom,
+  FlaskConical,
+  Beaker
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import TutorAbout from "@/components/sections/TutorAbout";
 import siteConfig from "@/config/site";
+import Carousel from "./Carousel";
 
 const LandingPage = () => {
-  const navigate = useNavigate();
 
-  const subjects = [
+  const subjectCategories = [
     {
-      icon: <Code className="h-8 w-8" />,
-      title: "Computer Science & Technology",
-      description: "Learn core programming concepts, data structures, and system design.",
-      tag: "+5 Years Teaching Experience"
+      icon: <Sigma className="h-8 w-8 text-indigo-600" />,
+      title: "Mathematics",
+      description: "From foundational algebra to advanced linear algebra, every concept is broken down with clarity.",
+      topics: [
+        "Algebra",
+        "Functions and Graphs",
+        "Trigonometry",
+        "Geometry",
+        "Calculus",
+        "Vectors and Matrices",
+        "Probability and Statistics",
+        "Sequences and Series",
+        "Complex Numbers",
+        "Linear Algebra",
+        "Discrete Math"
+      ]
     },
     {
-      icon: <Coffee className="h-8 w-8" />,
-      title: "Java Programming",
-      description: "Master OOP concepts, Spring Boot, and backend development with real-world projects.",
-      tag: "+5 Years Teaching Experience"
+      icon: <Atom className="h-8 w-8 text-indigo-600" />,
+      title: "Physics",
+      description: "Build intuition through real-world examples, visual aids, and carefully crafted problem sets.",
+      topics: [
+        "Kinematics",
+        "Dynamics",
+        "Work, Energy, and Power",
+        "Momentum and Collisions",
+        "Rotational Motion",
+        "Gravitation",
+        "Fluid Mechanics",
+        "Thermodynamics",
+        "Waves and Oscillations",
+        "Sound",
+        "Optics",
+        "Electricity and Magnetism",
+        "Electromagnetic Induction",
+        "Modern Physics",
+        "Quantum Physics and Relativity"
+      ]
     },
     {
-      icon: <Terminal className="h-8 w-8" />,
-      title: "Python",
-      description: "From basics to data analysis, automation, and AI applications.",
-      tag: "+5 Years Teaching Experience"
+      icon: <FlaskConical className="h-8 w-8 text-indigo-600" />,
+      title: "Chemistry",
+      description: "Understand the why behind every reaction with structured notes and practice questions.",
+      topics: [
+        "Atomic Structure",
+        "Periodic Table and Periodicity",
+        "Chemical Bonding and Molecular Structure",
+        "Stoichiometry",
+        "States of Matter",
+        "Thermodynamics",
+        "Chemical and Ionic Equilibrium",
+        "Electrochemistry",
+        "Chemical Kinetics",
+        "Solutions and Colligative Properties",
+        "Redox Reactions",
+        "Coordination Compounds",
+        "Surface Chemistry",
+        "Environmental Chemistry"
+      ]
     },
     {
-      icon: <Brain className="h-8 w-8" />,
-      title: "Machine Learning",
-      description: "Learn regression, classification, model evaluation, and deployment using Python & TensorFlow.",
-      tag: "+5 Years Teaching Experience"
+      icon: <BarChart3 className="h-8 w-8 text-indigo-600" />,
+      title: "Statistics",
+      description: "Combine theory with data-driven projects to build practical analytical confidence.",
+      topics: [
+        "Descriptive Statistics",
+        "Probability Theory",
+        "Random Variables and Distributions",
+        "Sampling Methods",
+        "Estimation and Confidence Intervals",
+        "Hypothesis Testing",
+        "Correlation and Regression",
+        "Time Series Analysis",
+        "Non-Parametric Tests",
+        "Experimental Design and Data Interpretation"
+      ]
     },
     {
-      icon: <Globe className="h-8 w-8" />,
-      title: "Web Development (MERN Stack)",
-      description: "Build modern web apps using MongoDB, Express, React, and Node.js.",
-      tag: "+5 Years Teaching Experience"
-    },
-    {
-      icon: <BarChart3 className="h-8 w-8" />,
-      title: "Data Analytics & Power BI",
-      description: "Transform raw data into actionable insights with visualization tools.",
-      tag: "+5 Years Teaching Experience"
+      icon: <Beaker className="h-8 w-8 text-indigo-600" />,
+      title: "Organic Chemistry",
+      description: "Learn to decode mechanisms, predict outcomes, and justify every step of a synthesis route.",
+      topics: [
+        "Structure and Bonding",
+        "Nomenclature and Isomerism",
+        "Reaction Mechanisms",
+        "Hydrocarbons",
+        "Alcohols, Phenols, and Ethers",
+        "Aldehydes and Ketones",
+        "Carboxylic Acids and Derivatives",
+        "Amines and Amides",
+        "Biomolecules",
+        "Spectroscopy and Structural Determination",
+        "Polymers",
+        "Reaction Intermediates"
+      ]
     }
+  ];
+
+  const howItWorks = [
+    {
+      icon: <Calendar className="h-8 w-8 text-indigo-600" />,
+      title: "Schedule a discovery call",
+      description: "Share your goals, timelines, and pain points. We will map the plan before we ever meet live."
+    },
+    {
+      icon: <ClipboardList className="h-8 w-8 text-indigo-600" />,
+      title: "Receive a tailored roadmap",
+      description: "I prepare a focused syllabus with curated resources, checkpoints, and project milestones just for you."
+    },
+    {
+      icon: <Clock className="h-8 w-8 text-indigo-600" />,
+      title: "Meet for weekly deep-dives",
+      description: "Flexible online sessions, async support between meetings, and actionable feedback each step."
+    },
+    {
+      icon: <CheckCircle className="h-8 w-8 text-indigo-600" />,
+      title: "Ship results with confidence",
+      description: "We review deliverables together so you understand the 'why' behind every solution and can present it clearly."
+    }
+  ];
+
+  const heroStats = [
+    { label: "Students mentored", value: "500+" },
+    { label: "Years experience", value: `${siteConfig.tutor.experienceYears}+` },
+    { label: "Success rate", value: "98%" }
   ];
 
   // Single tutor site: remove multi-tutor list
@@ -96,7 +191,7 @@ const LandingPage = () => {
     <div className="min-h-screen bg-white">
 
       {/* Navigation */}
-      <nav className="bg-white/90 backdrop-blur-xl border-b border-indigo-100/50 sticky top-0 z-50 shadow-sm">
+      <nav className="bg-white/95 backdrop-blur-xl border-b border-indigo-100/50 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2 group">
@@ -107,9 +202,16 @@ const LandingPage = () => {
                 {siteConfig.name}
               </span>
             </div>
+            <div className="hidden lg:flex items-center space-x-8 text-sm font-medium text-gray-600">
+              <a href="#about" className="hover:text-indigo-600 transition-colors">About</a>
+              <a href="#subjects" className="hover:text-indigo-600 transition-colors">What I teach</a>
+              <a href="#process" className="hover:text-indigo-600 transition-colors">How it works</a>
+              <a href="#projects" className="hover:text-indigo-600 transition-colors">Project support</a>
+              <a href="#testimonials" className="hover:text-indigo-600 transition-colors">Testimonials</a>
+            </div>
             <div className="flex items-center space-x-4">
-              {/* Auth temporarily removed */}
-              <Button onClick={() => window.location.href = "#contact"} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              <span className="hidden md:inline text-sm text-gray-500">{siteConfig.tagLine}</span>
+              <Button onClick={() => (window.location.href = "#contact")} className="bg-indigo-600 hover:bg-indigo-700 text-white">
                 Contact
               </Button>
             </div>
@@ -121,47 +223,45 @@ const LandingPage = () => {
       <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center relative z-10">
-            <div>
+            <div className="max-w-4xl mx-auto">
+              <span className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <Rocket className="h-4 w-4" />
+                {siteConfig.tagLine}
+              </span>
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-                One-on-One Tutoring with <span className="text-indigo-600">{siteConfig.tutor.fullName}</span>
+                Personalized tutoring with <span className="text-indigo-600">{siteConfig.tutor.fullName}</span>
               </h1>
-              <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed">
+              <p className="text-xl md:text-2xl text-gray-600 mb-10 leading-relaxed">
                 {siteConfig.tutor.blurbPrimary}
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
                 <Button 
                   size="lg" 
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 text-lg font-semibold" 
-                  onClick={() => window.location.href = "#contact"}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 text-lg font-semibold group" 
+                  onClick={() => (window.location.href = "mailto:" + siteConfig.contact.email)}
                 >
-                  Book a Session
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  Book a free intro call
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
                 <Button 
                   size="lg" 
                   variant="outline" 
                   className="border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 px-8 py-4 text-lg font-semibold" 
-                  onClick={() => window.location.href = "#about"}
+                  onClick={() => (window.location.href = "#process")}
                 >
                   <PlayCircle className="mr-2 h-5 w-5" />
-                  Learn More
+                  See how it works
                 </Button>
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-                <div className="text-center p-6 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                  <div className="text-3xl font-bold text-indigo-600 mb-2">500+</div>
-                  <div className="text-gray-600">Students Trained</div>
-                </div>
-                <div className="text-center p-6 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                  <div className="text-3xl font-bold text-purple-600 mb-2">{siteConfig.tutor.experienceYears}+</div>
-                  <div className="text-gray-600">Years Experience</div>
-                </div>
-                <div className="text-center p-6 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                  <div className="text-3xl font-bold text-pink-600 mb-2">98%</div>
-                  <div className="text-gray-600">Success Rate</div>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {heroStats.map((stat) => (
+                  <div key={stat.label} className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg">
+                    <div className="text-3xl font-bold text-indigo-600 mb-2">{stat.value}</div>
+                    <div className="text-gray-600 uppercase tracking-wide text-sm">{stat.label}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -196,45 +296,43 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* What We Teach Section */}
-      <section className="py-20 bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative overflow-hidden">
+      {/* How It Works Section */}
+      <section id="process" className="py-20 bg-gradient-to-br from-indigo-50/60 via-white to-purple-50/40 relative overflow-hidden">
         <div className="absolute inset-0 opacity-40">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 to-indigo-100/20"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-100/20 to-purple-100/20"></div>
           <div className="absolute inset-0 radial-overlay-b"></div>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <BookOpen className="h-4 w-4" />
-              Subjects I Teach
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <ClipboardList className="h-4 w-4" />
+              How It Works
             </div>
             <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              What I Teach
+              A simple path from goals to results
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Comprehensive, practical lessons tailored to your goals with real-world applications
+              Every engagement is tailored. We focus on the exact concepts, assignments, and projects that move you forward.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {subjects.map((subject, index) => (
-              <Card key={index} className="group hover:shadow-2xl transition-all duration-500 border-0 bg-white/90 backdrop-blur-sm transform hover:scale-105 hover:-translate-y-2">
-                <CardHeader className="text-center pb-4">
-                  <div className="mx-auto mb-4 p-4 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl w-fit group-hover:from-indigo-200 group-hover:to-purple-200 transition-all duration-300 group-hover:scale-110">
-                    <div className="text-indigo-600 group-hover:text-purple-600 transition-colors">
-                      {subject.icon}
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {howItWorks.map((step, index) => (
+              <Card key={step.title} className="h-full border-0 bg-white/90 backdrop-blur-sm shadow-lg">
+                <CardHeader className="flex flex-row items-start gap-4 pb-2">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50">
+                    {step.icon}
                   </div>
-                  <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
-                    {subject.title}
-                  </CardTitle>
+                  <div>
+                    <Badge variant="secondary" className="mb-2">
+                      Step {index + 1}
+                    </Badge>
+                    <CardTitle className="text-xl text-gray-900">{step.title}</CardTitle>
+                  </div>
                 </CardHeader>
-                <CardContent className="text-center">
-                  <CardDescription className="text-gray-600 mb-6 leading-relaxed">
-                    {subject.description}
+                <CardContent>
+                  <CardDescription className="text-gray-600 leading-relaxed">
+                    {step.description}
                   </CardDescription>
-                  <Badge variant="secondary" className="bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-800 hover:from-indigo-200 hover:to-purple-200 transition-all duration-300">
-                    {subject.tag}
-                  </Badge>
                 </CardContent>
               </Card>
             ))}
@@ -242,10 +340,63 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* What We Teach Section */}
+      <section id="subjects" className="py-20 bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-40">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 to-indigo-100/20"></div>
+          <div className="absolute inset-0 radial-overlay-b"></div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <span className="inline-flex items-center justify-center rounded-full bg-indigo-50 px-4 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-600">
+              Core Subjects
+            </span>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 tracking-tight">
+              What I Teach
+            </h2>
+            <p className="mt-4 text-base md:text-lg text-gray-500 max-w-2xl mx-auto">
+              Concentrated coaching across math, physics, chemistry, statistics, and organic chemistry tailored to your goals.
+            </p>
+          </div>
+          <div className="relative mx-auto h-[320px] w-full max-w-5xl sm:h-[360px]">
+            <Carousel
+              baseWidth={320}
+              autoplay
+              autoplayDelay={3000}
+              pauseOnHover
+              loop
+              round={false}
+              className="h-full"
+            >
+              {subjectCategories.map((category) => (
+                <Card
+                  key={category.title}
+                  className="flex h-full flex-col items-center justify-center border border-indigo-100/60 bg-white/95 backdrop-blur-sm shadow-lg"
+                >
+                  <CardHeader className="pb-0">
+                    <div className="flex flex-col items-center gap-4 text-center">
+                      <div className="rounded-2xl bg-indigo-50 p-4">
+                        {category.icon}
+                      </div>
+                      <CardTitle className="text-2xl font-semibold text-gray-900">
+                        {category.title}
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-4 text-center text-sm text-gray-600">
+                    {category.description}
+                  </CardContent>
+                </Card>
+              ))}
+            </Carousel>
+          </div>
+        </div>
+      </section>
+
       {/* Expert Tutors Section removed for single tutor focus */}
 
       {/* Project Support Section */}
-      <section className="py-20 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 relative overflow-hidden">
+  <section id="projects" className="py-20 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 relative overflow-hidden">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 to-indigo-100/20"></div>
           <div className="absolute inset-0 radial-overlay-c"></div>
@@ -303,7 +454,7 @@ const LandingPage = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-gradient-to-br from-white via-indigo-50/20 to-purple-50/20 relative overflow-hidden">
+  <section id="testimonials" className="py-20 bg-gradient-to-br from-white via-indigo-50/20 to-purple-50/20 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-100/10 to-purple-100/10"></div>
           <div className="absolute inset-0 radial-overlay-d"></div>
@@ -318,7 +469,7 @@ const LandingPage = () => {
               What My Students Say
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Success stories from my tutoring sessions — real results from real students
+              Success stories from my tutoring sessions - real results from real students
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -390,20 +541,20 @@ const LandingPage = () => {
             <div>
               <h3 className="text-xl font-semibold mb-6 text-white">Quick Links</h3>
               <ul className="space-y-4">
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">About</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">Courses</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">Contact</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">Privacy Policy</a></li>
+                <li><a href="#about" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">About</a></li>
+                <li><a href="#subjects" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">What I teach</a></li>
+                <li><a href="#process" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">How it works</a></li>
+                <li><a href="#contact" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">Contact</a></li>
               </ul>
             </div>
             <div>
               <h3 className="text-xl font-semibold mb-6 text-white">Contact Info</h3>
-              <div className="space-y-4">
+              <div id="contact" className="space-y-4">
                 <div className="flex items-center space-x-3 group">
                   <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg group-hover:scale-110 transition-transform duration-300">
                     <Mail className="h-4 w-4 text-white" />
                   </div>
-                  <span id="contact" className="text-gray-300 group-hover:text-white transition-colors duration-300">{siteConfig.contact.email}</span>
+                  <span className="text-gray-300 group-hover:text-white transition-colors duration-300">{siteConfig.contact.email}</span>
                 </div>
                 <div className="flex items-center space-x-3 group">
                   <div className="p-2 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg group-hover:scale-110 transition-transform duration-300">
