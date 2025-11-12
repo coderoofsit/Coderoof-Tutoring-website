@@ -139,6 +139,8 @@ const LandingPage = () => {
     { label: "Success rate", value: "98%" }
   ];
 
+  const phoneLink = siteConfig.contact.phone.replace(/[^+\d]/g, "");
+
   // Single tutor site: remove multi-tutor list
 
   const openBookingForm = () => {
@@ -234,7 +236,6 @@ const LandingPage = () => {
               <a href="#booking" className="hover:text-indigo-600 transition-colors">Book a session</a>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="hidden md:inline text-sm text-gray-500">{siteConfig.tagLine}</span>
               <Button
                 type="button"
                 onClick={openBookingForm}
@@ -483,18 +484,28 @@ const LandingPage = () => {
             <div>
               <h3 className="text-xl font-semibold mb-6 text-white">Contact Info</h3>
               <div id="contact" className="space-y-4">
-                <div className="flex items-center space-x-3 group">
+                <a
+                  href={`mailto:${siteConfig.contact.email}`}
+                  className="flex items-center space-x-3 group"
+                >
                   <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg group-hover:scale-110 transition-transform duration-300">
                     <Mail className="h-4 w-4 text-white" />
                   </div>
-                  <span className="text-gray-300 group-hover:text-white transition-colors duration-300">{siteConfig.contact.email}</span>
-                </div>
-                <div className="flex items-center space-x-3 group">
+                  <span className="text-gray-300 group-hover:text-white transition-colors duration-300 underline-offset-4 group-hover:underline">
+                    {siteConfig.contact.email}
+                  </span>
+                </a>
+                <a
+                  href={`tel:${phoneLink}`}
+                  className="flex items-center space-x-3 group"
+                >
                   <div className="p-2 bg-gradient-to-r from-green-500 to-blue-600 rounded-lg group-hover:scale-110 transition-transform duration-300">
                     <Phone className="h-4 w-4 text-white" />
                   </div>
-                  <span className="text-gray-300 group-hover:text-white transition-colors duration-300">{siteConfig.contact.phone}</span>
-                </div>
+                  <span className="text-gray-300 group-hover:text-white transition-colors duration-300 underline-offset-4 group-hover:underline">
+                    {siteConfig.contact.phone}
+                  </span>
+                </a>
                 <div className="flex items-center space-x-3 group">
                   <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg group-hover:scale-110 transition-transform duration-300">
                     <MessageCircle className="h-4 w-4 text-white" />

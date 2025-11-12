@@ -27,8 +27,8 @@ export const siteConfig: SiteConfig = {
 	name: "Nexus",
 	tagLine: "One-on-one tutoring for CS, Math, and Data",
 	contact: {
-		email: "contact@nyccstutor.com",
-		phone: "+1 (555) 123-4567",
+		email: "help@nexuseduhub.com",
+		phone: "+1 (347) 986-6113",
 	},
 	social: {
 		facebook: "#",
