@@ -26,6 +26,7 @@ import TutorAbout from "@/components/sections/TutorAbout";
 import AppointmentForm from "@/components/sections/AppointmentForm";
 import HowItWorks from "@/components/sections/HowItWorks";
 import ServicesOverview from "@/components/sections/ServicesOverview";
+import FAQ from "@/components/sections/FAQ";
 import siteConfig from "@/config/site";
 import Carousel from "./Carousel";
 import FlowingMenu from "./FlowingMenu";
@@ -229,6 +230,7 @@ const LandingPage = () => {
               <a href="#services" className="hover:text-indigo-600 transition-colors">Services</a>
               <a href="#subjects" className="hover:text-indigo-600 transition-colors">What I teach</a>
               <a href="#testimonials" className="hover:text-indigo-600 transition-colors">Testimonials</a>
+              <a href="#faq" className="hover:text-indigo-600 transition-colors">FAQ</a>
               <a href="#booking" className="hover:text-indigo-600 transition-colors">Book a session</a>
             </div>
             <div className="flex items-center space-x-4">
@@ -294,9 +296,11 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <HowItWorks />
+    <HowItWorks />
 
-  <ServicesOverview />
+    <ServicesOverview />
+
+    <FAQ />
 
   {/* What We Teach Section */}
       <section id="subjects" className="py-20 bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative overflow-hidden">
@@ -472,6 +476,7 @@ const LandingPage = () => {
                 <li><a href="#services" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">Services</a></li>
                 <li><a href="#subjects" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">What I teach</a></li>
                 <li><a href="#process" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">How it works</a></li>
+                <li><a href="#faq" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">FAQ</a></li>
                 <li><a href="#contact" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">Contact</a></li>
               </ul>
             </div>
