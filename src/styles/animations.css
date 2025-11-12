@@ -178,3 +178,28 @@
     radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.05) 0%, transparent 50%);
 }
 
+.flowing-menu-container {
+  transition: transform 0.3s ease;
+}
+
+.flowing-menu-container:hover {
+  transform: translateY(-4px);
+}
+
+.flowing-menu-track {
+  animation: flowing-menu-scroll 36s linear infinite;
+}
+
+.flowing-menu-container:hover .flowing-menu-track {
+  animation-play-state: paused;
+}
+
+@keyframes flowing-menu-scroll {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+

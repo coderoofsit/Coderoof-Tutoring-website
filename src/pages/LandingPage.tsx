@@ -32,6 +32,7 @@ import {
 import TutorAbout from "@/components/sections/TutorAbout";
 import siteConfig from "@/config/site";
 import Carousel from "./Carousel";
+import FlowingMenu from "./FlowingMenu";
 
 const LandingPage = () => {
 
@@ -169,21 +170,51 @@ const LandingPage = () => {
   const testimonials = [
     {
       name: "Alex Thompson",
-      role: "Computer Science Student",
-      content: "The Java tutoring sessions transformed my understanding of OOP concepts. Highly recommended!",
-      rating: 5
+      role: "Mathematics Undergraduate",
+      quote: "Matt's calculus and linear algebra sessions turned dense proofs into patterns I can now explain with ease.",
+      image: "https://i.pravatar.cc/150?img=5"
     },
     {
-      name: "Maria Garcia",
-      role: "Data Science Enthusiast",
-      content: "Excellent Python guidance with real-world projects. The ML course was outstanding!",
-      rating: 5
+      name: "Priya Desai",
+      role: "Statistics Graduate Student",
+      quote: "Our weekly probability clinics rewired how I approach inference. My statistical modeling now feels precise and confident.",
+      image: "https://i.pravatar.cc/150?img=32"
     },
     {
       name: "David Kim",
-      role: "Web Developer",
-      content: "The MERN stack course helped me land my dream job. The tutors are industry experts!",
-      rating: 5
+      role: "Physics Transfer Student",
+      quote: "Mechanics and electromagnetism finally made sense once Matt tied every equation to a physical intuition I could visualize.",
+      image: "https://i.pravatar.cc/150?img=15"
+    },
+    {
+      name: "Hannah Lee",
+      role: "Chemistry Honors Student",
+      quote: "Thermodynamics and kinetics went from memorization to mastery. Matt's chemistry roadmaps keep every concept connected.",
+      image: "https://i.pravatar.cc/150?img=47"
+    },
+    {
+      name: "Miguel Alvarez",
+      role: "High School Senior",
+      quote: "Organic chemistry stopped being a mystery once we sketched mechanisms together. I now predict reactions with confidence.",
+      image: "https://i.pravatar.cc/150?img=28"
+    },
+    {
+      name: "Aisha Rahman",
+      role: "Physical Chemistry Researcher",
+      quote: "Deriving equilibrium expressions step by step with Matt sharpened my lab analysis and made spectroscopy data far clearer.",
+      image: "https://i.pravatar.cc/150?img=12"
+    },
+    {
+      name: "Noah Feldman",
+      role: "Quantitative Analyst",
+      quote: "Matt's statistics coaching helped me rebuild probability fundamentals, so my forecasting models now hold up under scrutiny.",
+      image: "https://i.pravatar.cc/150?img=21"
+    },
+    {
+      name: "Sofia Marin",
+      role: "Pre-Med Student",
+      quote: "Balancing organic chemistry with general chem prep felt doable once Matt split topics into bite-sized synthesis checkpoints.",
+      image: "https://i.pravatar.cc/150?img=36"
     }
   ];
 
@@ -395,63 +426,7 @@ const LandingPage = () => {
 
       {/* Expert Tutors Section removed for single tutor focus */}
 
-      {/* Project Support Section */}
-  <section id="projects" className="py-20 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 to-indigo-100/20"></div>
-          <div className="absolute inset-0 radial-overlay-c"></div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <Rocket className="h-4 w-4" />
-              Project Support
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              Project Support
-            </h2>
-            <p className="text-xl text-gray-600 max-w-4xl mx-auto mb-8">
-              Get help building academic or real-world projects with expert guidance and mentorship from me.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            <Card className="text-center p-8 bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 group border-0">
-              <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl w-fit mx-auto mb-6 group-hover:from-blue-200 group-hover:to-indigo-200 transition-all duration-300">
-                <Code className="h-12 w-12 text-blue-600 group-hover:text-indigo-600 transition-colors" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-3 text-lg group-hover:text-blue-600 transition-colors">Java Projects</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Mini Projects in Java</p>
-            </Card>
-            <Card className="text-center p-8 bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 group border-0">
-              <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl w-fit mx-auto mb-6 group-hover:from-green-200 group-hover:to-emerald-200 transition-all duration-300">
-                <Terminal className="h-12 w-12 text-green-600 group-hover:text-emerald-600 transition-colors" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-3 text-lg group-hover:text-green-600 transition-colors">Python Projects</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Data Science & Automation</p>
-            </Card>
-            <Card className="text-center p-8 bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 group border-0">
-              <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl w-fit mx-auto mb-6 group-hover:from-purple-200 group-hover:to-pink-200 transition-all duration-300">
-                <Brain className="h-12 w-12 text-purple-600 group-hover:text-pink-600 transition-colors" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-3 text-lg group-hover:text-purple-600 transition-colors">ML Projects</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Machine Learning Models</p>
-            </Card>
-            <Card className="text-center p-8 bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 group border-0">
-              <div className="p-4 bg-gradient-to-br from-orange-100 to-red-100 rounded-2xl w-fit mx-auto mb-6 group-hover:from-orange-200 group-hover:to-red-200 transition-all duration-300">
-                <Globe className="h-12 w-12 text-orange-600 group-hover:text-red-600 transition-colors" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-3 text-lg group-hover:text-orange-600 transition-colors">Web Apps</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">Full Stack Applications</p>
-            </Card>
-          </div>
-          <div className="text-center">
-            <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-4 text-lg font-semibold" onClick={() => window.location.href = "#contact"}>
-              Request Project Assistance
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* Project Support Section removed intentionally */}
 
       {/* Testimonials Section */}
   <section id="testimonials" className="py-20 bg-gradient-to-br from-white via-indigo-50/20 to-purple-50/20 relative overflow-hidden">
@@ -472,32 +447,8 @@ const LandingPage = () => {
               Success stories from my tutoring sessions - real results from real students
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 bg-white/90 backdrop-blur-sm border-0 group">
-                <CardContent className="p-8">
-                  <div className="flex items-center mb-6">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-6 w-6 text-yellow-400 fill-current group-hover:scale-110 transition-transform" style={{animationDelay: `${i * 0.1}s`}} />
-                    ))}
-                  </div>
-                  <p className="text-gray-600 mb-6 italic text-lg leading-relaxed group-hover:text-gray-700 transition-colors">
-                    "{testimonial.content}"
-                  </p>
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mr-4">
-                      <span className="text-indigo-600 font-bold text-lg">
-                        {testimonial.name.split(' ').map(n => n[0]).join('')}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900 text-lg group-hover:text-indigo-600 transition-colors">{testimonial.name}</p>
-                      <p className="text-sm text-gray-500">{testimonial.role}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="mx-auto h-[520px] w-full max-w-5xl">
+            <FlowingMenu items={testimonials} />
           </div>
         </div>
       </section>
