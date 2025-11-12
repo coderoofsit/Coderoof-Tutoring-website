@@ -5,12 +5,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import LandingPage from "./pages/LandingPage";
-import Auth from "./pages/Auth";
-import AuthSelector from "./pages/AuthSelector";
-import AdminAuth from "./pages/AdminAuth";
-import StudentAuth from "./pages/StudentAuth";
-import AdminPage from "./pages/AdminPage";
-import StudentPage from "./pages/StudentPage";
+// Temporarily disabling auth-related pages for individual tutor site refocus
+// import Auth from "./pages/Auth";
+// import AuthSelector from "./pages/AuthSelector";
+// import AdminAuth from "./pages/AdminAuth";
+// import StudentAuth from "./pages/StudentAuth";
+// import AdminPage from "./pages/AdminPage";
+// import StudentPage from "./pages/StudentPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,11 +25,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/dashboard" element={<Index />} />
-          <Route path="/auth" element={<AuthSelector />} />
-          <Route path="/auth/admin" element={<AdminAuth />} />
-          <Route path="/auth/student" element={<StudentAuth />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/student" element={<StudentPage />} />
+          {/** Auth & role-based routes removed for now. Restore by uncommenting above imports and routes. */}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
