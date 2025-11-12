@@ -3,10 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import {
   BookOpen,
-  Code,
-  Terminal,
-  Brain,
-  Globe,
   BarChart3,
   Star,
   ArrowRight,
@@ -20,10 +16,7 @@ import {
   Lightbulb,
   Rocket,
   PlayCircle,
-  Calendar,
   ClipboardList,
-  Clock,
-  CheckCircle,
   Sigma,
   Atom,
   FlaskConical,
@@ -31,6 +24,8 @@ import {
 } from "lucide-react";
 import TutorAbout from "@/components/sections/TutorAbout";
 import AppointmentForm from "@/components/sections/AppointmentForm";
+import HowItWorks from "@/components/sections/HowItWorks";
+import ServicesOverview from "@/components/sections/ServicesOverview";
 import siteConfig from "@/config/site";
 import Carousel from "./Carousel";
 import FlowingMenu from "./FlowingMenu";
@@ -137,29 +132,6 @@ const LandingPage = () => {
     }
   ];
 
-  const howItWorks = [
-    {
-      icon: <Calendar className="h-8 w-8 text-indigo-600" />,
-      title: "Schedule a discovery call",
-      description: "Share your goals, timelines, and pain points. We will map the plan before we ever meet live."
-    },
-    {
-      icon: <ClipboardList className="h-8 w-8 text-indigo-600" />,
-      title: "Receive a tailored roadmap",
-      description: "I prepare a focused syllabus with curated resources, checkpoints, and project milestones just for you."
-    },
-    {
-      icon: <Clock className="h-8 w-8 text-indigo-600" />,
-      title: "Meet for weekly deep-dives",
-      description: "Flexible online sessions, async support between meetings, and actionable feedback each step."
-    },
-    {
-      icon: <CheckCircle className="h-8 w-8 text-indigo-600" />,
-      title: "Ship results with confidence",
-      description: "We review deliverables together so you understand the 'why' behind every solution and can present it clearly."
-    }
-  ];
-
   const heroStats = [
     { label: "Students mentored", value: "500+" },
     { label: "Years experience", value: `${siteConfig.tutor.experienceYears}+` },
@@ -253,11 +225,11 @@ const LandingPage = () => {
               </span>
             </div>
             <div className="hidden lg:flex items-center space-x-8 text-sm font-medium text-gray-600">
-              <a href="#about" className="hover:text-indigo-600 transition-colors">About</a>
-              <a href="#subjects" className="hover:text-indigo-600 transition-colors">What I teach</a>
               <a href="#process" className="hover:text-indigo-600 transition-colors">How it works</a>
-              <a href="#booking" className="hover:text-indigo-600 transition-colors">Book a session</a>
+              <a href="#services" className="hover:text-indigo-600 transition-colors">Services</a>
+              <a href="#subjects" className="hover:text-indigo-600 transition-colors">What I teach</a>
               <a href="#testimonials" className="hover:text-indigo-600 transition-colors">Testimonials</a>
+              <a href="#booking" className="hover:text-indigo-600 transition-colors">Book a session</a>
             </div>
             <div className="flex items-center space-x-4">
               <span className="hidden md:inline text-sm text-gray-500">{siteConfig.tagLine}</span>
@@ -301,10 +273,10 @@ const LandingPage = () => {
                   size="lg" 
                   variant="outline" 
                   className="border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 px-8 py-4 text-lg font-semibold" 
-                  onClick={() => (window.location.href = "#process")}
+                  onClick={openBookingForm}
                 >
                   <PlayCircle className="mr-2 h-5 w-5" />
-                  See how it works
+                  Book your first session
                 </Button>
               </div>
 
@@ -322,79 +294,11 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* About Us Section */}
-      <section className="py-20 bg-gradient-to-br from-white via-indigo-50/30 to-purple-50/30 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-100/20 to-purple-100/20"></div>
-          <div className="absolute inset-0 radial-overlay-a"></div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <Lightbulb className="h-4 w-4" />
-              About the Tutor
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              Personalized One-on-One Tutoring
-            </h2>
-            <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed mb-8">
-              {siteConfig.tutor.blurbSecondary}
-            </p>
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-8 rounded-2xl shadow-2xl max-w-3xl mx-auto">
-              <p className="text-xl font-semibold italic">
-                "I bridge the gap between learning and practical implementation."
-              </p>
-            </div>
-          </div>
-          <TutorAbout />
-        </div>
-      </section>
+      <HowItWorks />
 
-      {/* How It Works Section */}
-      <section id="process" className="py-20 bg-gradient-to-br from-indigo-50/60 via-white to-purple-50/40 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-40">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-100/20 to-purple-100/20"></div>
-          <div className="absolute inset-0 radial-overlay-b"></div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <ClipboardList className="h-4 w-4" />
-              How It Works
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              A simple path from goals to results
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Every engagement is tailored. We focus on the exact concepts, assignments, and projects that move you forward.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {howItWorks.map((step, index) => (
-              <Card key={step.title} className="h-full border-0 bg-white/90 backdrop-blur-sm shadow-lg">
-                <CardHeader className="flex flex-row items-start gap-4 pb-2">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50">
-                    {step.icon}
-                  </div>
-                  <div>
-                    <Badge variant="secondary" className="mb-2">
-                      Step {index + 1}
-                    </Badge>
-                    <CardTitle className="text-xl text-gray-900">{step.title}</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-gray-600 leading-relaxed">
-                    {step.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+  <ServicesOverview />
 
-      {/* What We Teach Section */}
+  {/* What We Teach Section */}
       <section id="subjects" className="py-20 bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative overflow-hidden">
         <div className="absolute inset-0 opacity-40">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 to-indigo-100/20"></div>
@@ -449,27 +353,35 @@ const LandingPage = () => {
 
       {/* Expert Tutors Section removed for single tutor focus */}
 
-      <section id="booking" className="py-20 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 to-indigo-100/20"></div>
-          <div className="absolute inset-0 radial-overlay-c"></div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <ClipboardList className="h-4 w-4" />
-              Book a session
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
-              Tell me what you need and secure your slot
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Share your goals, upload reference material, and choose the timing that fits. I will confirm details right away.
-            </p>
+      {/* About the Tutor Section */}
+      {false && (
+        <section id="about" className="py-20 bg-gradient-to-br from-white via-indigo-50/30 to-purple-50/30 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-100/20 to-purple-100/20"></div>
+            <div className="absolute inset-0 radial-overlay-a"></div>
           </div>
-          <AppointmentForm subjects={subjectCategories.map(({ title, topics }) => ({ title, topics }))} />
-        </div>
-      </section>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <Lightbulb className="h-4 w-4" />
+                About the Tutor
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+                Personalized One-on-One Tutoring
+              </h2>
+              <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed mb-8">
+                {siteConfig.tutor.blurbSecondary}
+              </p>
+              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-8 rounded-2xl shadow-2xl max-w-3xl mx-auto">
+                <p className="text-xl font-semibold italic">
+                  "I bridge the gap between learning and practical implementation."
+                </p>
+              </div>
+            </div>
+            <TutorAbout />
+          </div>
+        </section>
+      )}
 
       {/* Testimonials Section */}
   <section id="testimonials" className="py-20 bg-gradient-to-br from-white via-indigo-50/20 to-purple-50/20 relative overflow-hidden">
@@ -493,6 +405,28 @@ const LandingPage = () => {
           <div className="mx-auto h-[520px] w-full max-w-5xl">
             <FlowingMenu items={testimonials} />
           </div>
+        </div>
+      </section>
+
+      <section id="booking" className="py-20 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-100/20 to-indigo-100/20"></div>
+          <div className="absolute inset-0 radial-overlay-c"></div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-indigo-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <ClipboardList className="h-4 w-4" />
+              Book a session
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">
+              Tell me what you need and secure your slot
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Share your goals, upload reference material, and choose the timing that fits. I will confirm details right away.
+            </p>
+          </div>
+          <AppointmentForm subjects={subjectCategories.map(({ title, topics }) => ({ title, topics }))} />
         </div>
       </section>
 
@@ -535,7 +469,7 @@ const LandingPage = () => {
             <div>
               <h3 className="text-xl font-semibold mb-6 text-white">Quick Links</h3>
               <ul className="space-y-4">
-                <li><a href="#about" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">About</a></li>
+                <li><a href="#services" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">Services</a></li>
                 <li><a href="#subjects" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">What I teach</a></li>
                 <li><a href="#process" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">How it works</a></li>
                 <li><a href="#contact" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">Contact</a></li>
