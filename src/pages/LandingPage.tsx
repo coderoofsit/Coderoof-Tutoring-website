@@ -499,11 +499,22 @@ const LandingPage = () => {
                 <li><a href="#subjects" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">What I teach</a></li>
                 <li><a href="#process" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">How it works</a></li>
                 <li><a href="#faq" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">FAQ</a></li>
-                <li><a href="#contact" className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block">Contact</a></li>
+                <li>
+                  <a
+                    href="#booking"
+                    className="text-gray-300 hover:text-white transition-colors duration-300 hover:translate-x-2 inline-block"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      openBookingForm();
+                    }}
+                  >
+                    Book a session
+                  </a>
+                </li>
               </ul>
             </div>
             <div>
-              <h3 className="text-xl font-semibold mb-6 text-white">Contact Info</h3>
+              <h3 className="text-xl font-semibold mb-6 text-white">Book a Session</h3>
               <div id="contact" className="space-y-4">
                 <a
                   href={`mailto:${siteConfig.contact.email}`}
@@ -531,7 +542,7 @@ const LandingPage = () => {
                   <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg group-hover:scale-110 transition-transform duration-300">
                     <MessageCircle className="h-4 w-4 text-white" />
                   </div>
-                  <span className="text-gray-300 group-hover:text-white transition-colors duration-300">Live Chat Support</span>
+                  <span className="text-gray-300 group-hover:text-white transition-colors duration-300">Prefer a quick chat? Call or email and I’ll schedule your session.</span>
                 </div>
               </div>
             </div>
