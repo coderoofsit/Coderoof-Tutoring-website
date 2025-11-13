@@ -6,12 +6,10 @@ import {
   BookOpen,
   BarChart3,
   Star,
-  ArrowRight,
   MessageCircle,
   Mail,
   Phone,
   Lightbulb,
-  Rocket,
   PlayCircle,
   ClipboardList,
   Sigma,
@@ -239,24 +237,14 @@ const LandingPage = () => {
               <a href="#subjects" className="hover:text-indigo-600 transition-colors">What I teach</a>
               <a href="#testimonials" className="hover:text-indigo-600 transition-colors">Testimonials</a>
               <a href="#faq" className="hover:text-indigo-600 transition-colors">FAQ</a>
-              <a
-                href="#booking"
-                className="hover:text-indigo-600 transition-colors"
-                onClick={(event) => {
-                  event.preventDefault();
-                  openBookingForm();
-                }}
-              >
-                Book a session
-              </a>
             </div>
             <div className="flex items-center space-x-4">
               <Button
                 type="button"
                 onClick={openBookingForm}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md hover:from-indigo-700 hover:to-purple-700"
               >
-                Contact
+                Book your session
               </Button>
             </div>
           </div>
@@ -264,48 +252,57 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center relative z-10">
-            <div className="max-w-4xl mx-auto">
-              <span className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                <Rocket className="h-4 w-4" />
-                {siteConfig.tagLine}
-              </span>
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-                Personalized tutoring with <span className="text-indigo-600">{siteConfig.tutor.fullName}</span>
+      <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-indigo-50 py-20">
+        <div className="pointer-events-none absolute -left-32 top-24 h-72 w-72 rounded-full bg-orange-200/50 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-indigo-200/40 blur-3xl" />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col-reverse items-center gap-16 lg:flex-row">
+            <div className="w-full lg:w-1/2">
+              <div className="inline-flex items-center rounded-full bg-white/70 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-orange-600 shadow-sm backdrop-blur">
+                Nexus EduHub
+              </div>
+              <h1 className="mt-6 text-4xl font-bold leading-tight text-gray-900 sm:text-5xl lg:text-6xl">
+                Hi, I'm <span className="text-indigo-600">{siteConfig.tutor.fullName}</span>
               </h1>
-              <p className="text-xl md:text-2xl text-gray-600 mb-10 leading-relaxed">
+              <p className="mt-6 text-lg text-gray-600 sm:text-xl sm:leading-relaxed">
                 {siteConfig.tutor.blurbPrimary}
               </p>
-              <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
-                <Button 
-                  size="lg" 
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 text-lg font-semibold group" 
-                  onClick={() => (window.location.href = "mailto:" + siteConfig.contact.email)}
-                >
-                  Book a free intro call
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 px-8 py-4 text-lg font-semibold" 
+              <div className="mt-10 flex flex-wrap items-center gap-4">
+                <Button
+                  size="lg"
+                  className="bg-indigo-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-transform duration-200 hover:-translate-y-0.5 hover:bg-indigo-700"
                   onClick={openBookingForm}
                 >
                   <PlayCircle className="mr-2 h-5 w-5" />
                   Book your first session
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className="border border-indigo-200/70 px-6 py-4 text-lg font-semibold text-indigo-600 hover:bg-indigo-100"
+                  onClick={() => (window.location.href = "mailto:" + siteConfig.contact.email)}
+                >
+                  Contact via email
+                </Button>
               </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
                 {heroStats.map((stat) => (
-                  <div key={stat.label} className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg">
-                    <div className="text-3xl font-bold text-indigo-600 mb-2">{stat.value}</div>
-                    <div className="text-gray-600 uppercase tracking-wide text-sm">{stat.label}</div>
+                  <div key={stat.label} className="rounded-2xl border border-white/60 bg-white/70 p-6 text-left shadow-md backdrop-blur">
+                    <div className="text-3xl font-bold text-indigo-600">{stat.value}</div>
+                    <div className="mt-2 text-sm font-medium uppercase tracking-wide text-gray-500">{stat.label}</div>
                   </div>
                 ))}
+              </div>
+            </div>
+            <div className="relative w-full lg:w-1/2">
+              <div className="relative mx-auto h-[420px] w-full max-w-[520px]">
+                <div className="absolute inset-0 rounded-[44px] bg-gradient-to-br from-orange-200/80 via-orange-100/60 to-transparent" />
+                <div className="absolute -bottom-6 -left-6 h-[420px] w-[420px] rounded-full border border-orange-200/60" />
+                <img
+                  src="https://images.unsplash.com/photo-1521119989659-a83eee488004?auto=format&fit=crop&w=900&q=80"
+                  alt="Portrait of German language tutor Matthew Balogh"
+                  className="relative z-10 h-full w-full rounded-[36px] object-cover shadow-2xl"
+                />
               </div>
             </div>
           </div>
