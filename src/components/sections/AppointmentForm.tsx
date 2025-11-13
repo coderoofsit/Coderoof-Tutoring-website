@@ -1,9 +1,10 @@
-import { ChangeEvent, FormEvent, ReactNode, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, ReactNode, RefObject, useMemo, useState } from "react";
 
 import AmericanDatePicker from "@/components/form/AmericanDatePicker";
 import FileUploadField from "@/components/form/FileUploadField";
 import { Button } from "@/components/ui/button";
 import { isValidAmericanDate } from "@/lib/date";
+import { cn } from "@/lib/utils";
 
 type SubjectCategory = {
   title: string;
@@ -12,6 +13,8 @@ type SubjectCategory = {
 
 type AppointmentFormProps = {
   subjects: SubjectCategory[];
+  firstFieldRef?: RefObject<HTMLInputElement>;
+  variant?: "standalone" | "modal";
 };
 
 type FormState = {
@@ -20,6 +23,7 @@ type FormState = {
   service: "" | "online tutoring" | "assignment help";
   instantHelp: "" | "yes" | "no";
   subject: string;
+  topic: string;
   date: string;
   time: string;
   timezone: string;
@@ -29,6 +33,7 @@ type FormState = {
 const MAX_FILE_BYTES = 15 * 1024 * 1024;
 const timezones = ["Eastern", "Central", "Mountain", "Pacific"];
 const timeOptions = ["08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"];
+const SUBTOPIC_PRICE = 30;
 
 type FormColumnSpan = 3 | 4 | 6 | 8 | 12;
 
@@ -39,22 +44,6 @@ const columnSpanClasses: Record<FormColumnSpan, string> = {
   8: "w-full md:col-span-8",
   12: "w-full md:col-span-12"
 };
-
-type FormSectionProps = {
-  title: string;
-  description?: string;
-  children: ReactNode;
-};
-
-const FormSection = ({ title, description, children }: FormSectionProps) => (
-  <section className="space-y-4">
-    <header className="space-y-1">
-      <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-      {description && <p className="text-sm text-gray-500">{description}</p>}
-    </header>
-    <div className="space-y-6">{children}</div>
-  </section>
-);
 
 type FormRowProps = {
   children: ReactNode;
@@ -73,13 +62,28 @@ const FormColumn = ({ span = 12, children }: FormColumnProps) => (
   <div className={columnSpanClasses[span]}>{children}</div>
 );
 
-const AppointmentForm = ({ subjects }: AppointmentFormProps) => {
+type FormSectionProps = {
+  title: string;
+  children: ReactNode;
+};
+
+const FormSection = ({ title, children }: FormSectionProps) => (
+  <section className="space-y-4">
+    <header>
+      <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+    </header>
+    <div className="space-y-6">{children}</div>
+  </section>
+);
+
+const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone" }: AppointmentFormProps) => {
   const [formState, setFormState] = useState<FormState>({
     name: "",
     email: "",
     service: "",
     instantHelp: "",
     subject: "",
+    topic: "",
     date: "",
     time: "",
     timezone: "",
@@ -111,7 +115,8 @@ const AppointmentForm = ({ subjects }: AppointmentFormProps) => {
       time: value === "online tutoring" ? prev.time : "",
       timezone: value === "online tutoring" ? prev.timezone : "",
       instantHelp: "",
-      subject: prev.subject
+      subject: prev.subject,
+      topic: ""
     }));
   };
 
@@ -137,7 +142,14 @@ const AppointmentForm = ({ subjects }: AppointmentFormProps) => {
     event.preventDefault();
     setStatusMessage("");
 
-    if (!formState.name || !formState.email || !formState.service || !formState.instantHelp || !formState.subject) {
+    if (
+      !formState.name ||
+      !formState.email ||
+      !formState.service ||
+      !formState.instantHelp ||
+      !formState.subject ||
+      !formState.topic
+    ) {
       setStatusMessage("Please complete all required fields before booking.");
       return;
     }
@@ -163,13 +175,17 @@ const AppointmentForm = ({ subjects }: AppointmentFormProps) => {
   return (
     <div
       id="booking-form"
-      className="mx-auto max-w-4xl rounded-3xl border border-indigo-100/60 bg-white/95 p-8 shadow-xl backdrop-blur-sm"
+      className={cn(
+        "mx-auto max-w-4xl rounded-3xl border border-indigo-100/60 bg-white/95 p-8 shadow-xl backdrop-blur-sm",
+        variant === "modal" &&
+          "max-w-3xl border-0 bg-transparent p-0 shadow-none backdrop-blur-none"
+      )}
     >
-      <form onSubmit={handleSubmit} className="space-y-10">
-        <FormSection
-          title="Contact information"
-          description="Share the best way to reach you so I can confirm your booking quickly."
-        >
+      <form
+        onSubmit={handleSubmit}
+        className={cn("space-y-10", variant === "modal" && "space-y-8")}
+      >
+        <FormSection title="Contact information">
           <FormRow>
             <FormColumn span={6}>
               <label className="flex flex-col gap-2 text-sm font-medium text-gray-700">
@@ -179,6 +195,7 @@ const AppointmentForm = ({ subjects }: AppointmentFormProps) => {
                   required
                   value={formState.name}
                   onChange={handleInputChange("name")}
+                  ref={firstFieldRef}
                   className="rounded-xl border border-indigo-100 bg-white px-4 py-3 text-base text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                   placeholder="Enter your name"
                 />
@@ -200,10 +217,7 @@ const AppointmentForm = ({ subjects }: AppointmentFormProps) => {
           </FormRow>
         </FormSection>
 
-        <FormSection
-          title="Session details"
-          description="Outline what you need so I can tailor our work together."
-        >
+        <FormSection title="Session details">
           <div className="grid gap-4 sm:grid-cols-2">
             {[
               { value: "online tutoring", label: "Online tutoring" },
@@ -254,7 +268,10 @@ const AppointmentForm = ({ subjects }: AppointmentFormProps) => {
                   <select
                     required
                     value={formState.subject}
-                    onChange={handleInputChange("subject")}
+                    onChange={(event) => {
+                      handleInputChange("subject")(event);
+                      setFormState((prev) => ({ ...prev, topic: "" }));
+                    }}
                     className="rounded-xl border border-indigo-100 bg-white px-4 py-3 text-base text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                   >
                     <option value="">Select a subject</option>
@@ -271,24 +288,42 @@ const AppointmentForm = ({ subjects }: AppointmentFormProps) => {
 
           {activeSubject && (
             <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-6">
-              <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600">Subtopics covered</p>
-              <ul className="mt-4 grid grid-cols-1 gap-2 text-sm text-gray-700 md:grid-cols-2">
-                {activeSubject.topics.map((topic) => (
-                  <li key={topic} className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
-                    {topic}
-                  </li>
-                ))}
-              </ul>
+              <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600">Choose a subtopic</p>
+              <div className="mt-4 space-y-3">
+                {activeSubject.topics.map((topic, index) => {
+                  const inputId = `subtopic-${topic.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+                  return (
+                    <label
+                      key={topic}
+                      htmlFor={inputId}
+                      className={`flex items-center justify-between rounded-2xl border px-4 py-3 transition ${
+                        formState.topic === topic
+                          ? "border-indigo-500 bg-white shadow-sm"
+                          : "border-indigo-100 bg-white/80 hover:border-indigo-200"
+                      }`}
+                    >
+                      <input
+                        id={inputId}
+                        type="radio"
+                        name="subtopic"
+                        value={topic}
+                        checked={formState.topic === topic}
+                        onChange={() => setFormState((prev) => ({ ...prev, topic }))}
+                        className="sr-only"
+                        required={index === 0 && !formState.topic}
+                      />
+                      <span className="text-sm font-medium text-gray-800">{topic}</span>
+                      <span className="text-sm font-semibold text-indigo-600">${SUBTOPIC_PRICE}</span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
           )}
         </FormSection>
 
         {requiresScheduling && (
-          <FormSection
-            title="Scheduling preferences"
-            description="Select the session window that fits your calendar."
-          >
+          <FormSection title="Scheduling preferences">
             <FormRow>
               <FormColumn span={4}>
                 <AmericanDatePicker
@@ -338,10 +373,7 @@ const AppointmentForm = ({ subjects }: AppointmentFormProps) => {
           </FormSection>
         )}
 
-        <FormSection
-          title="Supporting material"
-          description="Optional details help me prepare before we meet."
-        >
+        <FormSection title="Supporting material">
           <FormRow>
             <FormColumn span={12}>
               <FileUploadField
