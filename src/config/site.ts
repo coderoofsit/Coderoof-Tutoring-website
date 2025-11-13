@@ -37,7 +37,7 @@ export const siteConfig: SiteConfig = {
 		instagram: "#",
 	},
 	tutor: {
-			fullName: "Matt Balogh",
+			fullName: "Matthew Balogh",
 		location: "New York",
 		degree: "Computer Science",
 		minors: "Physics and Statistics",
