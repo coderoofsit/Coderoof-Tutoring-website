@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,10 +10,6 @@ import {
   MessageCircle,
   Mail,
   Phone,
-  Facebook,
-  Twitter,
-  Linkedin,
-  Instagram,
   Lightbulb,
   Rocket,
   PlayCircle,
@@ -27,11 +24,15 @@ import AppointmentForm from "@/components/sections/AppointmentForm";
 import HowItWorks from "@/components/sections/HowItWorks";
 import ServicesOverview from "@/components/sections/ServicesOverview";
 import FAQ from "@/components/sections/FAQ";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import siteConfig from "@/config/site";
 import Carousel from "./Carousel";
 import FlowingMenu from "./FlowingMenu";
 
 const LandingPage = () => {
+
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const firstFieldRef = useRef<HTMLInputElement | null>(null);
 
   const subjectCategories = [
     {
@@ -133,6 +134,8 @@ const LandingPage = () => {
     }
   ];
 
+  const formSubjects = subjectCategories.map(({ title, topics }) => ({ title, topics }));
+
   const heroStats = [
     { label: "Students mentored", value: "500+" },
     { label: "Years experience", value: `${siteConfig.tutor.experienceYears}+` },
@@ -144,22 +147,25 @@ const LandingPage = () => {
   // Single tutor site: remove multi-tutor list
 
   const openBookingForm = () => {
-    if (typeof document === "undefined") return;
-    const bookingSection = document.getElementById("booking");
-    if (bookingSection) {
-      bookingSection.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else {
+    if (typeof window !== "undefined") {
       window.location.hash = "#booking";
     }
-
-    const bookingForm = document.getElementById("booking-form");
-    if (bookingForm) {
-      const focusTarget = bookingForm.querySelector<HTMLElement>("input, select, textarea");
-      if (focusTarget) {
-        setTimeout(() => focusTarget.focus(), 400);
+    if (typeof document !== "undefined") {
+      const bookingSection = document.getElementById("booking");
+      if (bookingSection) {
+        bookingSection.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
+    setIsBookingOpen(true);
   };
+
+  useEffect(() => {
+    if (!isBookingOpen) return;
+    const focusTimer = window.setTimeout(() => {
+      firstFieldRef.current?.focus();
+    }, 250);
+    return () => window.clearTimeout(focusTimer);
+  }, [isBookingOpen]);
 
   const testimonials = [
     {
@@ -233,7 +239,16 @@ const LandingPage = () => {
               <a href="#subjects" className="hover:text-indigo-600 transition-colors">What I teach</a>
               <a href="#testimonials" className="hover:text-indigo-600 transition-colors">Testimonials</a>
               <a href="#faq" className="hover:text-indigo-600 transition-colors">FAQ</a>
-              <a href="#booking" className="hover:text-indigo-600 transition-colors">Book a session</a>
+              <a
+                href="#booking"
+                className="hover:text-indigo-600 transition-colors"
+                onClick={(event) => {
+                  event.preventDefault();
+                  openBookingForm();
+                }}
+              >
+                Book a session
+              </a>
             </div>
             <div className="flex items-center space-x-4">
               <Button
@@ -431,9 +446,32 @@ const LandingPage = () => {
               Share your goals, upload reference material, and choose the timing that fits. I will confirm details right away.
             </p>
           </div>
-          <AppointmentForm subjects={subjectCategories.map(({ title, topics }) => ({ title, topics }))} />
+          <div className="flex flex-col items-center gap-4">
+            <Button
+              size="lg"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 text-lg font-semibold"
+              onClick={openBookingForm}
+            >
+              Open booking form
+            </Button>
+            <p className="text-sm text-gray-500">No payment required today—I'll respond within 24 hours to confirm details.</p>
+          </div>
         </div>
       </section>
+
+      <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
+        <DialogContent className="max-h-[90vh] w-[95vw] max-w-3xl overflow-y-auto bg-white p-0 sm:rounded-3xl sm:border sm:border-indigo-100 hide-scrollbar">
+          <DialogHeader className="items-center px-6 pt-6 text-center sm:text-center">
+            <DialogTitle className="text-2xl text-gray-900 text-center">Tell me about your request</DialogTitle>
+            <DialogDescription className="text-base text-gray-600 text-center">
+              Fill out the details below so I can prepare and confirm your session quickly.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="px-2 pb-6 sm:px-6">
+            <AppointmentForm subjects={formSubjects} firstFieldRef={firstFieldRef} variant="modal" />
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Footer */}
       <footer className="bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 text-white py-20 relative overflow-hidden">
@@ -456,20 +494,6 @@ const LandingPage = () => {
                 Empowering learners with expert tutoring and project support. 
                 I bridge the gap between learning and practical implementation.
               </p>
-              <div className="flex space-x-4">
-                <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-300 transform hover:scale-110">
-                  <Facebook className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-300 transform hover:scale-110">
-                  <Twitter className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-300 transform hover:scale-110">
-                  <Linkedin className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white hover:bg-white/10 transition-all duration-300 transform hover:scale-110">
-                  <Instagram className="h-5 w-5" />
-                </Button>
-              </div>
             </div>
             <div>
               <h3 className="text-xl font-semibold mb-6 text-white">Quick Links</h3>
