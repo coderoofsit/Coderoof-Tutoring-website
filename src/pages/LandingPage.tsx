@@ -299,9 +299,9 @@ const LandingPage = () => {
                 <div className="absolute inset-0 rounded-[44px] bg-gradient-to-br from-orange-200/80 via-orange-100/60 to-transparent" />
                 <div className="absolute -bottom-6 -left-6 h-[420px] w-[420px] rounded-full border border-orange-200/60" />
                 <img
-                  src="https://images.unsplash.com/photo-1521119989659-a83eee488004?auto=format&fit=crop&w=900&q=80"
-                  alt="Portrait of German language tutor Matthew Balogh"
-                  className="relative z-10 h-full w-full rounded-[36px] object-cover shadow-2xl"
+                  src="../../public/assets/Matthew.jpg"
+                  alt="Portrait of tutor wearing glasses and a bow tie"
+                  className="relative z-10 h-full w-full rounded-[36px] object-cover shadow-2xl hero-image-crop"
                 />
               </div>
             </div>
