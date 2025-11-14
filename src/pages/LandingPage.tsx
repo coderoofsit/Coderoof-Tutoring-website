@@ -299,7 +299,7 @@ const LandingPage = () => {
                 <div className="absolute inset-0 rounded-[44px] bg-gradient-to-br from-orange-200/80 via-orange-100/60 to-transparent" />
                 <div className="absolute -bottom-6 -left-6 h-[420px] w-[420px] rounded-full border border-orange-200/60" />
                 <img
-                  src="../../public/assets/Matthew.jpg"
+                  src="/assets/Matthew.jpg"
                   alt="Portrait of tutor wearing glasses and a bow tie"
                   className="relative z-10 h-full w-full rounded-[36px] object-cover shadow-2xl hero-image-crop"
                 />
