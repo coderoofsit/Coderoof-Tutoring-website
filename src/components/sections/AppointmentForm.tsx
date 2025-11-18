@@ -55,7 +55,7 @@ const INITIAL_FORM_STATE: FormState = {
   notes: "",
 };
 
-const MAX_FILE_BYTES = 15 * 1024 * 1024;
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
 const timezones = ["Eastern", "Central", "Mountain", "Pacific"];
 const timeOptions = ["08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"];
 
@@ -146,7 +146,7 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onCl
     }
 
     if (file.size > MAX_FILE_BYTES) {
-      setFileError("File is larger than 15MB. Please upload a smaller file.");
+      setFileError("File is larger than 10MB. Please upload a smaller file.");
       setUploadedFileName("");
       setAttachment(null);
       return false;

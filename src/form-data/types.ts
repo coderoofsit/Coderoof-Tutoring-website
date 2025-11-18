@@ -12,23 +12,12 @@ export type AppointmentSubmission = {
   attachment?: File | null;
 };
 
-export type BrevoAttachment = {
+export type AppointmentAttachmentPayload = {
   name: string;
   content: string;
   type?: string;
 };
 
-export type BrevoTransactionalEmail = {
-  to: string[];
-  templateId: number;
-  params: Record<string, unknown>;
-  attachment?: BrevoAttachment[];
-};
-
-export type BrevoConfig = {
-  apiKey: string;
-  templateId: number;
-  recipientEmail: string;
-  senderEmail: string;
-  senderName: string;
+export type AppointmentRequestPayload = Omit<AppointmentSubmission, "attachment"> & {
+  attachment?: AppointmentAttachmentPayload | null;
 };
