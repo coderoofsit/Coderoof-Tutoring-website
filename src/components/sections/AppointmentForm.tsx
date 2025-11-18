@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, ReactNode, RefObject, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, ReactNode, RefObject, useMemo, useRef, useState } from "react";
 
 import AmericanDatePicker from "@/components/form/AmericanDatePicker";
 import FileUploadField from "@/components/form/FileUploadField";
@@ -13,6 +13,7 @@ import { toast } from "@/hooks/use-toast";
 import { Info } from "lucide-react";
 
 const SUBTOPIC_PRICE = 30;
+const CUSTOM_SUBTOPIC_VALUE = "__custom_subtopic__";
 
 type SubjectCategory = {
   title: string;
@@ -55,9 +56,22 @@ const INITIAL_FORM_STATE: FormState = {
   notes: "",
 };
 
-const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const MAX_FILE_BYTES = 5 * 1024 * 1024;
 const timezones = ["Eastern", "Central", "Mountain", "Pacific"];
-const timeOptions = ["08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"];
+
+const generateTimeOptions = (startHour = 0, endHour = 23, intervalMinutes = 30) => {
+  const options: string[] = [];
+  for (let hour = startHour; hour <= endHour; hour += 1) {
+    for (let minute = 0; minute < 60; minute += intervalMinutes) {
+      const formattedHour = `${hour}`.padStart(2, "0");
+      const formattedMinute = `${minute}`.padStart(2, "0");
+      options.push(`${formattedHour}:${formattedMinute}`);
+    }
+  }
+  return options;
+};
+
+const timeOptions = generateTimeOptions();
 
 type FormColumnSpan = 3 | 4 | 6 | 8 | 12;
 
@@ -108,6 +122,7 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onCl
   const [statusVariant, setStatusVariant] = useState<"success" | "error" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [attachment, setAttachment] = useState<File | null>(null);
+  const customTopicInputRef = useRef<HTMLInputElement | null>(null);
 
   const activeSubject = useMemo(
     () => subjects.find((subject) => subject.title === formState.subject),
@@ -146,7 +161,7 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onCl
     }
 
     if (file.size > MAX_FILE_BYTES) {
-      setFileError("File is larger than 10MB. Please upload a smaller file.");
+      setFileError("File is larger than 5MB. Please upload a smaller file.");
       setUploadedFileName("");
       setAttachment(null);
       return false;
@@ -158,13 +173,43 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onCl
     return true;
   };
 
+  const handleTopicSelect = (value: string) => {
+    if (value === CUSTOM_SUBTOPIC_VALUE) {
+      setFormState((prev) => ({
+        ...prev,
+        topic: CUSTOM_SUBTOPIC_VALUE,
+      }));
+      setTimeout(() => customTopicInputRef.current?.focus(), 0);
+      return;
+    }
+
+    setFormState((prev) => ({
+      ...prev,
+      topic: value,
+      topicOther: "",
+    }));
+  };
+
+  const handleCustomTopicChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setFormState((prev) => ({
+      ...prev,
+      topic: value ? CUSTOM_SUBTOPIC_VALUE : "",
+      topicOther: value,
+    }));
+  };
+
   const buildSubmissionPayload = (): AppointmentSubmission => ({
     name: formState.name.trim(),
     email: formState.email.trim(),
     service: formState.service as AppointmentSubmission["service"],
     instantHelp: formState.instantHelp as AppointmentSubmission["instantHelp"],
     subject: formState.subject,
-    topic: (formState.topic || formState.topicOther).trim(),
+    topic: (
+      formState.topic === CUSTOM_SUBTOPIC_VALUE || !formState.topic
+        ? formState.topicOther
+        : formState.topic
+    ).trim(),
     date: requiresScheduling ? formState.date : undefined,
     time: requiresScheduling ? formState.time : undefined,
     timezone: requiresScheduling ? formState.timezone : undefined,
@@ -392,12 +437,7 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onCl
                 <div className="space-y-4 text-sm font-medium text-gray-700">
                   <div className="flex flex-col gap-2 text-sm font-medium text-gray-700">
                     <label htmlFor="subtopic-select">Subtopic</label>
-                    <Select
-                      value={formState.topic || undefined}
-                      onValueChange={(value) =>
-                        setFormState((prev) => ({ ...prev, topic: value, topicOther: "" }))
-                      }
-                    >
+                    <Select value={formState.topic || undefined} onValueChange={handleTopicSelect}>
                       <SelectTrigger
                         id="subtopic-select"
                         className={cn(
@@ -416,6 +456,12 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onCl
                             </span>
                           </SelectItem>
                         ))}
+                        <SelectItem value={CUSTOM_SUBTOPIC_VALUE}>
+                          <span className="flex items-center justify-between gap-4">
+                            <span>Other (custom subtopic)</span>
+                            
+                          </span>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -425,9 +471,8 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onCl
                       <input
                         type="text"
                         value={formState.topicOther}
-                        onChange={(event) =>
-                          setFormState((prev) => ({ ...prev, topic: "", topicOther: event.target.value }))
-                        }
+                        onChange={handleCustomTopicChange}
+                        ref={customTopicInputRef}
                         placeholder="Type your topic"
                         className={cn(
                           "w-full rounded-xl border bg-white px-4 py-3 pr-16 text-base font-normal text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100",
@@ -503,7 +548,7 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onCl
             <FormColumn span={12}>
               <FileUploadField
                 label="Upload supporting file"
-                description="Attach PDFs, DOCX, or images up to 15MB."
+                description="Attach PDFs, DOCX, or images up to 5MB."
                 fileName={uploadedFileName}
                 error={fileError}
                 onFileSelect={handleFileChange}
