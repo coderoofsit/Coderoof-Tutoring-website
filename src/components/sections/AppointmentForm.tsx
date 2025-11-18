@@ -1,15 +1,16 @@
 import { ChangeEvent, FormEvent, ReactNode, RefObject, useMemo, useState } from "react";
-import { Info } from "lucide-react";
 
 import AmericanDatePicker from "@/components/form/AmericanDatePicker";
 import FileUploadField from "@/components/form/FileUploadField";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { isValidAmericanDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { submitAppointmentRequest } from "@/form-data";
 import type { AppointmentSubmission } from "@/form-data";
 import { toast } from "@/hooks/use-toast";
+import { Info } from "lucide-react";
 
 const SUBTOPIC_PRICE = 30;
 
@@ -373,26 +374,35 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onCl
             {activeSubject && (
               <div className="rounded-2xl border border-indigo-200 bg-indigo-50/50 p-6">
                 <div className="space-y-4 text-sm font-medium text-gray-700">
-                  <label className="flex flex-col gap-2">
-                    Subtopic
-                    <select
-                      value={formState.topic}
-                      onChange={(event) =>
-                        setFormState((prev) => ({ ...prev, topic: event.target.value, topicOther: "" }))
+                  <div className="flex flex-col gap-2 text-sm font-medium text-gray-700">
+                    <label htmlFor="subtopic-select">Subtopic</label>
+                    <Select
+                      value={formState.topic || undefined}
+                      onValueChange={(value) =>
+                        setFormState((prev) => ({ ...prev, topic: value, topicOther: "" }))
                       }
-                      className={cn(
-                        "rounded-xl border bg-white px-4 py-3 text-base font-normal text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100",
-                        formState.topic ? "border-indigo-300" : "border-indigo-200"
-                      )}
                     >
-                      <option value="">Select a subtopic</option>
-                      {activeSubject.topics.map((topic) => (
-                        <option key={topic} value={topic}>
-                          {`${topic}  ($${SUBTOPIC_PRICE})`}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                      <SelectTrigger
+                        id="subtopic-select"
+                        className={cn(
+                          "rounded-xl border bg-white px-4 py-3 text-base font-normal text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100",
+                          formState.topic ? "border-indigo-300" : "border-indigo-200"
+                        )}
+                      >
+                        <SelectValue placeholder="Select a subtopic" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-64">
+                        {activeSubject.topics.map((topic) => (
+                          <SelectItem key={topic} value={topic}>
+                            <span className="flex items-center justify-between gap-4">
+                              <span>{topic}</span>
+                              <span className="font-semibold text-indigo-500">${SUBTOPIC_PRICE}</span>
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <label className="flex flex-col gap-2 text-sm font-medium text-gray-700">
                     Didn't find your topic? (optional)
                     <div className="relative">
