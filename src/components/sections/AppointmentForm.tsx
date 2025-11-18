@@ -24,6 +24,7 @@ type AppointmentFormProps = {
   firstFieldRef?: RefObject<HTMLInputElement>;
   variant?: "standalone" | "modal";
   onClose?: () => void;
+  onSuccess?: () => void;
 };
 
 type FormState = {
@@ -99,7 +100,7 @@ const FormSection = ({ title, children }: FormSectionProps) => (
   </section>
 );
 
-const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onClose }: AppointmentFormProps) => {
+const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onClose, onSuccess }: AppointmentFormProps) => {
   const [formState, setFormState] = useState<FormState>(() => ({ ...INITIAL_FORM_STATE }));
   const [fileError, setFileError] = useState<string>("");
   const [statusMessage, setStatusMessage] = useState<string>("");
@@ -210,15 +211,30 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onCl
 
     try {
       await submitAppointmentRequest(buildSubmissionPayload());
-      toast({
-        title: "Request submitted",
-        description: "Thanks! I'll be in touch shortly with next steps.",
-      });
       setFormState(() => ({ ...INITIAL_FORM_STATE }));
       setAttachment(null);
       setUploadedFileName("");
       setFileError("");
       onClose?.();
+
+      const showSubmissionConfirmation = () => {
+        if (onSuccess) {
+          onSuccess();
+          return;
+        }
+
+        toast({
+          title: "Request submitted",
+          description: "Thanks! I'll be in touch shortly with next steps.",
+        });
+      };
+
+      if (variant === "modal") {
+        // Allow the modal close animation to finish before showing confirmation feedback.
+        setTimeout(showSubmissionConfirmation, 300);
+      } else {
+        showSubmissionConfirmation();
+      }
     } catch (error) {
       console.error("Appointment submission failed", error);
       const errorMessage =
