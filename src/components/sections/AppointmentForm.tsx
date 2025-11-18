@@ -1,8 +1,10 @@
 import { ChangeEvent, FormEvent, ReactNode, RefObject, useMemo, useState } from "react";
+import { Info } from "lucide-react";
 
 import AmericanDatePicker from "@/components/form/AmericanDatePicker";
 import FileUploadField from "@/components/form/FileUploadField";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { isValidAmericanDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { submitAppointmentRequest } from "@/form-data";
@@ -310,7 +312,26 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onCl
             <FormRow>
               <FormColumn span={6}>
                 <label className="flex flex-col gap-2 text-sm font-medium text-gray-700">
-                  Do you need instant help?
+                  <div className="flex items-center gap-2">
+                    <span>Do you need instant help?</span>
+                    <TooltipProvider delayDuration={100}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            className="text-indigo-500 transition hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200"
+                            aria-label="What is instant help?"
+                          >
+                            <Info className="h-3 w-3" aria-hidden="true" />
+                            <span className="sr-only">Learn more about instant help</span>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-left">
+                          Instant help flags your request as urgent so I can review it right away and prioritize a fast response.
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <select
                     required
                     value={formState.instantHelp}
