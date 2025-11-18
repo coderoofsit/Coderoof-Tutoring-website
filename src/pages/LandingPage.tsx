@@ -144,15 +144,6 @@ const LandingPage = () => {
   // Single tutor site: remove multi-tutor list
 
   const openBookingForm = () => {
-    if (typeof window !== "undefined") {
-      window.location.hash = "#booking";
-    }
-    if (typeof document !== "undefined") {
-      const bookingSection = document.getElementById("booking");
-      if (bookingSection) {
-        bookingSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }
     setIsBookingOpen(true);
   };
 
@@ -464,7 +455,12 @@ const LandingPage = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="px-2 pb-6 sm:px-6">
-            <AppointmentForm subjects={formSubjects} firstFieldRef={firstFieldRef} variant="modal" />
+            <AppointmentForm
+              subjects={formSubjects}
+              firstFieldRef={firstFieldRef}
+              variant="modal"
+              onClose={() => setIsBookingOpen(false)}
+            />
           </div>
         </DialogContent>
       </Dialog>

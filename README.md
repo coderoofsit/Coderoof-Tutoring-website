@@ -19,17 +19,20 @@ A comprehensive tutoring platform built with modern web technologies.
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <YOUR_REPO_URL>
 cd tutor-dashboard
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -73,11 +76,13 @@ npm run build
 ### Deploy to Vercel
 
 1. Install Vercel CLI:
+
 ```bash
 npm i -g vercel
 ```
 
 2. Deploy:
+
 ```bash
 vercel
 ```
@@ -85,6 +90,7 @@ vercel
 ### Deploy to Netlify
 
 1. Build the project:
+
 ```bash
 npm run build
 ```
@@ -93,10 +99,15 @@ npm run build
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `VITE_SUPABASE_URL` | Your Supabase project URL |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Your Supabase anon key |
+| Variable                        | Description                                                                 |
+| ------------------------------- | --------------------------------------------------------------------------- |
+| `VITE_SUPABASE_URL`             | Your Supabase project URL                                                   |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Your Supabase anon key                                                      |
+| `VITE_BREVO_API_KEY`            | Brevo transactional API key used for sending appointment emails             |
+| `VITE_BREVO_TEMPLATE_ID`        | Numeric ID of the Brevo template handling appointment notifications         |
+| `VITE_BREVO_RECIPIENT_EMAIL`    | Primary recipient email for appointment submissions                         |
+| `VITE_BREVO_SENDER_EMAIL`       | Optional: custom sender email registered with Brevo (defaults to recipient) |
+| `VITE_BREVO_SENDER_NAME`        | Optional: display name for the Brevo sender                                 |
 
 ## Contributing
 
