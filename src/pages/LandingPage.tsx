@@ -15,7 +15,6 @@ import {
   Atom,
   FlaskConical,
   Beaker,
-  CheckCircle2
 } from "lucide-react";
 import TutorAbout from "@/components/sections/TutorAbout";
 import AppointmentForm from "@/components/sections/AppointmentForm";
@@ -30,7 +29,6 @@ import FlowingMenu from "./FlowingMenu";
 const LandingPage = () => {
 
   const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const firstFieldRef = useRef<HTMLInputElement | null>(null);
 
   const subjectCategories = [
@@ -146,12 +144,7 @@ const LandingPage = () => {
   // Single tutor site: remove multi-tutor list
 
   const openBookingForm = () => {
-    setIsSuccessDialogOpen(false);
     setIsBookingOpen(true);
-  };
-
-  const handleBookingSuccess = () => {
-    setIsSuccessDialogOpen(true);
   };
 
   useEffect(() => {
@@ -467,29 +460,7 @@ const LandingPage = () => {
               firstFieldRef={firstFieldRef}
               variant="modal"
               onClose={() => setIsBookingOpen(false)}
-              onSuccess={handleBookingSuccess}
             />
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
-        <DialogContent className="max-w-md text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-            <CheckCircle2 className="h-10 w-10 text-emerald-600" />
-          </div>
-          <DialogHeader className="items-center text-center">
-            <DialogTitle className="text-2xl font-semibold text-gray-900">
-              Form successfully submitted
-            </DialogTitle>
-            <DialogDescription className="text-base text-gray-600">
-              Thanks for sharing your details. I will review everything and reach out shortly with the next steps.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center">
-            <Button onClick={() => setIsSuccessDialogOpen(false)} className="px-6">
-              Back to site
-            </Button>
           </div>
         </DialogContent>
       </Dialog>

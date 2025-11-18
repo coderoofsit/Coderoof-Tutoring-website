@@ -31,13 +31,19 @@ cd tutor-dashboard
 npm install
 ```
 
-3. Start the development server:
+3. Start the frontend development server:
 
 ```bash
 npm run dev
 ```
 
-The application will be available at `http://localhost:5173` (or the next available port).
+4. In a separate terminal, run the backend API:
+
+```bash
+npm run server:dev
+```
+
+The frontend runs at `http://localhost:5173` while the API listens on `http://localhost:4000` by default.
 
 ## Technologies Used
 
@@ -99,15 +105,27 @@ npm run build
 
 ## Environment Variables
 
-| Variable                        | Description                                                                 |
-| ------------------------------- | --------------------------------------------------------------------------- |
-| `VITE_SUPABASE_URL`             | Your Supabase project URL                                                   |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Your Supabase anon key                                                      |
-| `VITE_BREVO_API_KEY`            | Brevo transactional API key used for sending appointment emails             |
-| `VITE_BREVO_TEMPLATE_ID`        | Numeric ID of the Brevo template handling appointment notifications         |
-| `VITE_BREVO_RECIPIENT_EMAIL`    | Primary recipient email for appointment submissions                         |
-| `VITE_BREVO_SENDER_EMAIL`       | Optional: custom sender email registered with Brevo (defaults to recipient) |
-| `VITE_BREVO_SENDER_NAME`        | Optional: display name for the Brevo sender                                 |
+### Frontend (`.env`)
+
+| Variable                        | Description                                             |
+| ------------------------------- | ------------------------------------------------------- |
+| `VITE_SUPABASE_URL`             | Your Supabase project URL                               |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Your Supabase anon key                                  |
+| `VITE_API_BASE_URL`             | Optional: API origin (e.g., `http://localhost:4000`) |
+
+### Backend (`server/.env`)
+
+| Variable                  | Description                                                                       |
+| ------------------------- | --------------------------------------------------------------------------------- |
+| `PORT`                    | Port for the Express server (defaults to `4000`)                                  |
+| `MONGODB_URI`             | MongoDB connection string                                                         |
+| `MONGODB_DB_NAME`        | Database name used to store appointment submissions                               |
+| `BREVO_API_KEY`           | Brevo transactional API key                                                       |
+| `BREVO_TEMPLATE_ID`       | Numeric Brevo template ID used for appointment notifications                      |
+| `BREVO_RECIPIENT_EMAIL`   | Primary recipient email for incoming appointment requests                         |
+| `BREVO_SENDER_EMAIL`      | Optional: custom sender email registered with Brevo (defaults to recipient)       |
+| `BREVO_SENDER_NAME`       | Optional: sender display name (defaults to "Nexus EduHub")                        |
+| `ALLOWED_ORIGINS`         | Optional: comma-separated list of origins allowed to call the API (CORS control) |
 
 ## Contributing
 

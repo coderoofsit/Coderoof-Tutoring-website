@@ -1,55 +1,65 @@
-import { sendBrevoTransactionalEmail } from "./brevoClient";
-import { getBrevoConfig } from "./config";
-import type { AppointmentSubmission, BrevoAttachment } from "./types";
+import { getAppointmentApiUrl } from "./config";
+import type {
+  AppointmentAttachmentPayload,
+  AppointmentRequestPayload,
+  AppointmentSubmission,
+} from "./types";
 import { fileToBase64 } from "./utils";
 
-const formatInstantHelp = (value: AppointmentSubmission["instantHelp"]): string =>
-  value === "yes" ? "Yes" : "No";
-
-const buildAttachment = async (
+const buildAttachmentPayload = async (
   attachment?: AppointmentSubmission["attachment"],
-): Promise<BrevoAttachment[] | undefined> => {
+): Promise<AppointmentAttachmentPayload | null> => {
   if (!attachment) {
-    return undefined;
+    return null;
   }
 
   const base64Content = await fileToBase64(attachment);
 
-  return [
-    {
-      name: attachment.name,
-      content: base64Content,
-      type: attachment.type || undefined,
-    },
-  ];
+  return {
+    name: attachment.name,
+    content: base64Content,
+    type: attachment.type || undefined,
+  };
 };
 
-const buildTemplateParams = (
+const buildRequestPayload = async (
   submission: AppointmentSubmission,
-): Record<string, unknown> => ({
-  name: submission.name,
-  email: submission.email,
-  service: submission.service,
-  instantHelp: formatInstantHelp(submission.instantHelp),
-  subject: submission.subject,
-  topic: submission.topic,
-  date: submission.date ?? "Not provided",
-  time: submission.time ?? "Not provided",
-  timezone: submission.timezone ?? "Not provided",
-  notes: submission.notes?.trim() ?? "",
-  submittedAt: new Date().toISOString(),
-});
+): Promise<AppointmentRequestPayload> => {
+  const { attachment, ...rest } = submission;
+
+  return {
+    ...rest,
+    attachment: await buildAttachmentPayload(attachment),
+  };
+};
 
 export const submitAppointmentRequest = async (
   submission: AppointmentSubmission,
 ): Promise<void> => {
-  const config = getBrevoConfig();
-  const attachment = await buildAttachment(submission.attachment);
+  const payload = await buildRequestPayload(submission);
+  const endpoint = getAppointmentApiUrl();
 
-  await sendBrevoTransactionalEmail({
-    to: [config.recipientEmail],
-    templateId: config.templateId,
-    params: buildTemplateParams(submission),
-    attachment,
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
   });
+
+  if (!response.ok) {
+    let errorMessage = "We couldn't send your request. Please try again.";
+
+    try {
+      const errorBody = (await response.json()) as { error?: string };
+      if (errorBody.error) {
+        errorMessage = errorBody.error;
+      }
+    } catch {
+      // Swallow JSON parse errors and fall back to the default message.
+    }
+
+    throw new Error(errorMessage);
+  }
 };
