@@ -28,7 +28,7 @@ export const siteConfig: SiteConfig = {
 	tagLine: "One-on-one tutoring for CS, Math, and Data",
 	contact: {
 		email: "help@nexuseduhub.com",
-		phone: "+1 (347) 986-6113",
+		phone: "+1 (347) 986-6313",
 	},
 	social: {
 		facebook: "#",

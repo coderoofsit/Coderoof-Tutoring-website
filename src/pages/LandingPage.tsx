@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   BookOpen,
   BarChart3,
@@ -295,13 +294,13 @@ const LandingPage = () => {
               </div>
             </div>
             <div className="relative w-full lg:w-1/2">
-              <div className="relative mx-auto h-[420px] w-full max-w-[520px]">
-                <div className="absolute inset-0 rounded-[44px] bg-gradient-to-br from-orange-200/80 via-orange-100/60 to-transparent" />
-                <div className="absolute -bottom-6 -left-6 h-[420px] w-[420px] rounded-full border border-orange-200/60" />
+              <div className="relative mx-auto w-full max-w-[390px]">
+                <div className="pointer-events-none absolute inset-0 rounded-[44px] bg-gradient-to-br from-orange-200/80 via-orange-100/60 to-transparent" />
+                <div className="pointer-events-none absolute -bottom-10 -left-10 h-[480px] w-[480px] rounded-full border border-orange-200/60" />
                 <img
                   src="/assets/Matthew.jpg"
                   alt="Portrait of tutor wearing glasses and a bow tie"
-                  className="relative z-10 h-full w-full rounded-[36px] object-cover shadow-2xl hero-image-crop"
+                  className="relative z-10 block w-full rounded-[36px] shadow-2xl hero-image-crop"
                 />
               </div>
             </div>
