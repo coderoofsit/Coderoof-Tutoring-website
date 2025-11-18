@@ -3,6 +3,7 @@ import { ChangeEvent, FormEvent, ReactNode, RefObject, useMemo, useRef, useState
 import AmericanDatePicker from "@/components/form/AmericanDatePicker";
 import FileUploadField from "@/components/form/FileUploadField";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { isValidAmericanDate } from "@/lib/date";
@@ -14,6 +15,8 @@ import { Info } from "lucide-react";
 
 const SUBTOPIC_PRICE = 30;
 const CUSTOM_SUBTOPIC_VALUE = "__custom_subtopic__";
+const INSTANT_HELP_PRICE = 20;
+const INSTANT_HELP_DESCRIPTION = `Instant help adds a priority review slot so I can look at your request right away and prioritize a fast response.`;
 
 type SubjectCategory = {
   title: string;
@@ -377,32 +380,62 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onCl
                   <div className="flex items-center gap-2">
                     <span>Do you need instant help?</span>
                     <TooltipProvider delayDuration={100}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            type="button"
-                            className="text-indigo-500 transition hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200"
-                            aria-label="What is instant help?"
-                          >
-                            <Info className="h-3 w-3" aria-hidden="true" />
-                            <span className="sr-only">Learn more about instant help</span>
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="max-w-xs text-left">
-                          Instant help flags your request as urgent so I can review it right away and prioritize a fast response.
-                        </TooltipContent>
-                      </Tooltip>
+                      <Popover>
+                        <Tooltip>
+                          <PopoverTrigger asChild>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                className="text-indigo-500 transition hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200"
+                                aria-label="What is instant help?"
+                              >
+                                <Info className="h-3 w-3" aria-hidden="true" />
+                                <span className="sr-only">Learn more about instant help</span>
+                              </button>
+                            </TooltipTrigger>
+                          </PopoverTrigger>
+                          <TooltipContent side="top" className="max-w-xs text-left">
+                            {INSTANT_HELP_DESCRIPTION}
+                          </TooltipContent>
+                        </Tooltip>
+                        <PopoverContent align="start" side="top" className="max-w-xs text-sm leading-relaxed">
+                          {INSTANT_HELP_DESCRIPTION}
+                        </PopoverContent>
+                      </Popover>
                     </TooltipProvider>
                   </div>
-                  <select
-                    required
-                    value={formState.instantHelp}
-                    onChange={handleInputChange("instantHelp")}
-                    className="rounded-xl border border-indigo-100 bg-white px-4 py-3 text-base text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  <Select
+                    value={formState.instantHelp || undefined}
+                    onValueChange={(value) =>
+                      setFormState((prev) => ({ ...prev, instantHelp: value as FormState["instantHelp"] }))
+                    }
                   >
-                    <option value="no">No</option>
-                    <option value="yes">Yes</option>
-                  </select>
+                    <SelectTrigger
+                      className={cn(
+                        "rounded-xl border bg-white px-4 py-3 text-base font-normal text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100",
+                        formState.instantHelp ? "border-indigo-300" : "border-indigo-200",
+                      )}
+                    >
+                      <SelectValue placeholder="Select an option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[
+                        { value: "no", label: "No" as const },
+                        { value: "yes", label: "Yes (priority review)" as const, price: INSTANT_HELP_PRICE },
+                      ].map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          <span className="flex w-full items-center justify-between gap-4">
+                            <span>{option.label}</span>
+                            {option.price && (
+                              <span className="font-semibold text-indigo-500">
+                                ${option.price.toFixed(0)}
+                              </span>
+                            )}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </label>
               </FormColumn>
               <FormColumn span={6}>
