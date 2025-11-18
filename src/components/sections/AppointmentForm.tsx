@@ -5,6 +5,11 @@ import FileUploadField from "@/components/form/FileUploadField";
 import { Button } from "@/components/ui/button";
 import { isValidAmericanDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
+import { submitAppointmentRequest } from "@/form-data";
+import type { AppointmentSubmission } from "@/form-data";
+import { toast } from "@/hooks/use-toast";
+
+const SUBTOPIC_PRICE = 30;
 
 type SubjectCategory = {
   title: string;
@@ -15,6 +20,7 @@ type AppointmentFormProps = {
   subjects: SubjectCategory[];
   firstFieldRef?: RefObject<HTMLInputElement>;
   variant?: "standalone" | "modal";
+  onClose?: () => void;
 };
 
 type FormState = {
@@ -24,16 +30,30 @@ type FormState = {
   instantHelp: "" | "yes" | "no";
   subject: string;
   topic: string;
+  topicOther: string;
   date: string;
   time: string;
   timezone: string;
   notes: string;
 };
 
+const INITIAL_FORM_STATE: FormState = {
+  name: "",
+  email: "",
+  service: "",
+  instantHelp: "no",
+  subject: "",
+  topic: "",
+  topicOther: "",
+  date: "",
+  time: "",
+  timezone: "",
+  notes: "",
+};
+
 const MAX_FILE_BYTES = 15 * 1024 * 1024;
 const timezones = ["Eastern", "Central", "Mountain", "Pacific"];
 const timeOptions = ["08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00"];
-const SUBTOPIC_PRICE = 30;
 
 type FormColumnSpan = 3 | 4 | 6 | 8 | 12;
 
@@ -76,22 +96,14 @@ const FormSection = ({ title, children }: FormSectionProps) => (
   </section>
 );
 
-const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone" }: AppointmentFormProps) => {
-  const [formState, setFormState] = useState<FormState>({
-    name: "",
-    email: "",
-    service: "",
-    instantHelp: "",
-    subject: "",
-    topic: "",
-    date: "",
-    time: "",
-    timezone: "",
-    notes: ""
-  });
+const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onClose }: AppointmentFormProps) => {
+  const [formState, setFormState] = useState<FormState>(() => ({ ...INITIAL_FORM_STATE }));
   const [fileError, setFileError] = useState<string>("");
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [uploadedFileName, setUploadedFileName] = useState<string>("");
+  const [statusVariant, setStatusVariant] = useState<"success" | "error" | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [attachment, setAttachment] = useState<File | null>(null);
 
   const activeSubject = useMemo(
     () => subjects.find((subject) => subject.title === formState.subject),
@@ -114,9 +126,10 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone" }: Ap
       date: value === "online tutoring" ? prev.date : "",
       time: value === "online tutoring" ? prev.time : "",
       timezone: value === "online tutoring" ? prev.timezone : "",
-      instantHelp: "",
+      instantHelp: "no",
       subject: prev.subject,
-      topic: ""
+      topic: "",
+      topicOther: ""
     }));
   };
 
@@ -124,52 +137,100 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone" }: Ap
     if (!file) {
       setUploadedFileName("");
       setFileError("");
+      setAttachment(null);
       return true;
     }
 
     if (file.size > MAX_FILE_BYTES) {
       setFileError("File is larger than 15MB. Please upload a smaller file.");
       setUploadedFileName("");
+      setAttachment(null);
       return false;
     }
 
     setFileError("");
     setUploadedFileName(file.name);
+    setAttachment(file);
     return true;
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const buildSubmissionPayload = (): AppointmentSubmission => ({
+    name: formState.name.trim(),
+    email: formState.email.trim(),
+    service: formState.service as AppointmentSubmission["service"],
+    instantHelp: formState.instantHelp as AppointmentSubmission["instantHelp"],
+    subject: formState.subject,
+    topic: (formState.topic || formState.topicOther).trim(),
+    date: requiresScheduling ? formState.date : undefined,
+    time: requiresScheduling ? formState.time : undefined,
+    timezone: requiresScheduling ? formState.timezone : undefined,
+    notes: formState.notes,
+    attachment,
+  });
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatusMessage("");
+    setStatusVariant(null);
 
     if (
       !formState.name ||
       !formState.email ||
       !formState.service ||
       !formState.instantHelp ||
-      !formState.subject ||
-      !formState.topic
+      !formState.subject
     ) {
+      setStatusVariant("error");
       setStatusMessage("Please complete all required fields before booking.");
       return;
     }
 
     if (requiresScheduling && (!formState.date || !formState.time || !formState.timezone)) {
+      setStatusVariant("error");
       setStatusMessage("Please choose a date, time, and timezone for your tutoring session.");
       return;
     }
 
     if (requiresScheduling && !isValidAmericanDate(formState.date)) {
+      setStatusVariant("error");
       setStatusMessage("Please enter a valid date in MM/DD/YYYY format.");
       return;
     }
 
     if (fileError) {
+      setStatusVariant("error");
       setStatusMessage("Please resolve the file upload error before submitting.");
       return;
     }
 
-    setStatusMessage("Appointment request received! I will reach out shortly with next steps.");
+    setIsSubmitting(true);
+
+    try {
+      await submitAppointmentRequest(buildSubmissionPayload());
+      toast({
+        title: "Request submitted",
+        description: "Thanks! I'll be in touch shortly with next steps.",
+      });
+      setFormState(() => ({ ...INITIAL_FORM_STATE }));
+      setAttachment(null);
+      setUploadedFileName("");
+      setFileError("");
+      onClose?.();
+    } catch (error) {
+      console.error("Appointment submission failed", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "We couldn't send your request right now. Please try again or contact me via email.";
+      toast({
+        title: "Submission failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      onClose?.();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -256,9 +317,8 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone" }: Ap
                     onChange={handleInputChange("instantHelp")}
                     className="rounded-xl border border-indigo-100 bg-white px-4 py-3 text-base text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                   >
-                    <option value="">Select an option</option>
-                    <option value="yes">Yes</option>
                     <option value="no">No</option>
+                    <option value="yes">Yes</option>
                   </select>
                 </label>
               </FormColumn>
@@ -270,9 +330,12 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone" }: Ap
                     value={formState.subject}
                     onChange={(event) => {
                       handleInputChange("subject")(event);
-                      setFormState((prev) => ({ ...prev, topic: "" }));
+                      setFormState((prev) => ({ ...prev, topic: "", topicOther: "" }));
                     }}
-                    className="rounded-xl border border-indigo-100 bg-white px-4 py-3 text-base text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                    className={cn(
+                      "rounded-xl border bg-white px-4 py-3 text-base text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100",
+                      formState.subject ? "border-indigo-300" : "border-indigo-100"
+                    )}
                   >
                     <option value="">Select a subject</option>
                     {subjects.map((subject) => (
@@ -286,40 +349,55 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone" }: Ap
             </FormRow>
           )}
 
-          {activeSubject && (
-            <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-6">
-              <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600">Choose a subtopic</p>
-              <div className="mt-4 space-y-3">
-                {activeSubject.topics.map((topic, index) => {
-                  const inputId = `subtopic-${topic.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
-                  return (
-                    <label
-                      key={topic}
-                      htmlFor={inputId}
-                      className={`flex items-center justify-between rounded-2xl border px-4 py-3 transition ${
-                        formState.topic === topic
-                          ? "border-indigo-500 bg-white shadow-sm"
-                          : "border-indigo-100 bg-white/80 hover:border-indigo-200"
-                      }`}
+            {activeSubject && (
+              <div className="rounded-2xl border border-indigo-200 bg-indigo-50/50 p-6">
+                <div className="space-y-4 text-sm font-medium text-gray-700">
+                  <label className="flex flex-col gap-2">
+                    Subtopic
+                    <select
+                      value={formState.topic}
+                      onChange={(event) =>
+                        setFormState((prev) => ({ ...prev, topic: event.target.value, topicOther: "" }))
+                      }
+                      className={cn(
+                        "rounded-xl border bg-white px-4 py-3 text-base font-normal text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100",
+                        formState.topic ? "border-indigo-300" : "border-indigo-200"
+                      )}
                     >
+                      <option value="">Select a subtopic</option>
+                      {activeSubject.topics.map((topic) => (
+                        <option key={topic} value={topic}>
+                          {`${topic}  ($${SUBTOPIC_PRICE})`}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="flex flex-col gap-2 text-sm font-medium text-gray-700">
+                    Didn't find your topic? (optional)
+                    <div className="relative">
                       <input
-                        id={inputId}
-                        type="radio"
-                        name="subtopic"
-                        value={topic}
-                        checked={formState.topic === topic}
-                        onChange={() => setFormState((prev) => ({ ...prev, topic }))}
-                        className="sr-only"
-                        required={index === 0 && !formState.topic}
+                        type="text"
+                        value={formState.topicOther}
+                        onChange={(event) =>
+                          setFormState((prev) => ({ ...prev, topic: "", topicOther: event.target.value }))
+                        }
+                        placeholder="Type your topic"
+                        className={cn(
+                          "w-full rounded-xl border bg-white px-4 py-3 pr-16 text-base font-normal text-gray-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100",
+                          formState.topicOther ? "border-indigo-300" : "border-indigo-200"
+                        )}
                       />
-                      <span className="text-sm font-medium text-gray-800">{topic}</span>
-                      <span className="text-sm font-semibold text-indigo-600">${SUBTOPIC_PRICE}</span>
-                    </label>
-                  );
-                })}
+                      <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-semibold text-indigo-500">
+                        ${SUBTOPIC_PRICE}
+                      </span>
+                    </div>
+                    <span className="text-xs font-normal text-gray-500">
+                      We'll reference this custom topic if the dropdown is left blank.
+                    </span>
+                  </label>
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </FormSection>
 
         {requiresScheduling && (
@@ -404,12 +482,20 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone" }: Ap
         <div className="flex flex-col gap-4">
           <Button
             type="submit"
-            className="w-full self-stretch bg-indigo-600 py-3 text-lg font-semibold text-white hover:bg-indigo-700 md:w-auto md:self-end"
+            disabled={isSubmitting}
+            className="w-full self-stretch bg-indigo-600 py-3 text-lg font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-80 md:w-auto md:self-end"
           >
-            Book appointment
+            {isSubmitting ? "Sending..." : "Book appointment"}
           </Button>
           {statusMessage && (
-            <div className="rounded-2xl border border-indigo-200 bg-indigo-50/60 px-4 py-3 text-sm font-medium text-indigo-700">
+            <div
+              className={cn(
+                "rounded-2xl px-4 py-3 text-sm font-medium",
+                statusVariant === "error"
+                  ? "border border-red-200 bg-red-50/80 text-red-700"
+                  : "border border-emerald-200 bg-emerald-50/80 text-emerald-700",
+              )}
+            >
               {statusMessage}
             </div>
           )}
