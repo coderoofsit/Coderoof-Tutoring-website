@@ -21,3 +21,9 @@ export type AppointmentAttachmentPayload = {
 export type AppointmentRequestPayload = Omit<AppointmentSubmission, "attachment"> & {
   attachment?: AppointmentAttachmentPayload | null;
 };
+
+export type AppointmentSubmissionResponse = {
+  id: string;
+  status: "notified" | "email_failed";
+  message?: string;
+};

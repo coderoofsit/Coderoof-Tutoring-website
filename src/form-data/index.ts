@@ -1,2 +1,2 @@
 export { submitAppointmentRequest } from "./appointment";
-export type { AppointmentSubmission } from "./types";
+export type { AppointmentSubmission, AppointmentSubmissionResponse } from "./types";

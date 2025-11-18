@@ -3,6 +3,7 @@ import type {
   AppointmentAttachmentPayload,
   AppointmentRequestPayload,
   AppointmentSubmission,
+  AppointmentSubmissionResponse,
 } from "./types";
 import { fileToBase64 } from "./utils";
 
@@ -35,7 +36,7 @@ const buildRequestPayload = async (
 
 export const submitAppointmentRequest = async (
   submission: AppointmentSubmission,
-): Promise<void> => {
+): Promise<AppointmentSubmissionResponse> => {
   const payload = await buildRequestPayload(submission);
   const endpoint = getAppointmentApiUrl();
 
@@ -59,7 +60,8 @@ export const submitAppointmentRequest = async (
     } catch {
       // Swallow JSON parse errors and fall back to the default message.
     }
-
     throw new Error(errorMessage);
   }
+
+  return (await response.json()) as AppointmentSubmissionResponse;
 };

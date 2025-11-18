@@ -57,35 +57,53 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
     const { insertedId } = await collection.insertOne(record);
 
+    let submissionStatus: StoredAppointment["status"] = "pending";
+    let emailErrorMessage: string | undefined;
+
     try {
       await sendAppointmentEmail(submission);
+      submissionStatus = "notified";
     } catch (error) {
-      logger.error({ err: error }, "Failed to send Brevo email");
-      await collection.updateOne(
-        { _id: insertedId },
-        {
-          $set: {
-            status: "email_failed",
-            emailError: error instanceof Error ? error.message : "Unknown error",
-          },
-        },
+      submissionStatus = "email_failed";
+      emailErrorMessage = error instanceof Error ? error.message : "Unknown error";
+      logger.error(
+        { err: error, appointmentId: insertedId.toString() },
+        "Failed to send Brevo email",
       );
-      throw error;
+    }
+
+    const updateFields: Partial<Pick<StoredAppointment, "status" | "emailError">> = {
+      status: submissionStatus,
+    };
+
+    if (emailErrorMessage) {
+      updateFields.emailError = emailErrorMessage;
     }
 
     await collection.updateOne(
       { _id: insertedId },
       {
-        $set: {
-          status: "notified",
-        },
+        $set: updateFields,
       },
     );
 
-    res.status(201).json({
+    const responsePayload: {
+      id: string;
+      status: StoredAppointment["status"];
+      message?: string;
+    } = {
       id: insertedId.toString(),
-      status: "ok",
-    });
+      status: submissionStatus,
+    };
+
+    if (submissionStatus === "email_failed") {
+      responsePayload.message =
+        "We received your request, but we couldn't send the confirmation email. We'll reach out manually.";
+    }
+
+    const statusCode = submissionStatus === "notified" ? 201 : 202;
+
+    res.status(statusCode).json(responsePayload);
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({

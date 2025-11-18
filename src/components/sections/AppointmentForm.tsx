@@ -258,23 +258,35 @@ const AppointmentForm = ({ subjects, firstFieldRef, variant = "standalone", onCl
     setIsSubmitting(true);
 
     try {
-      await submitAppointmentRequest(buildSubmissionPayload());
+      const submissionResult = await submitAppointmentRequest(buildSubmissionPayload());
       setFormState(() => ({ ...INITIAL_FORM_STATE }));
       setAttachment(null);
       setUploadedFileName("");
       setFileError("");
       onClose?.();
 
+      const isEmailWarning = submissionResult.status === "email_failed";
+      const successTitle = isEmailWarning ? "Request received" : "Request submitted";
+      const successDescription = isEmailWarning
+        ? submissionResult.message ??
+          "We received your request, but the confirmation email didn't go through. We'll reach out manually."
+        : "Thanks! I'll be in touch shortly with next steps.";
+
+      const shouldForceToast = isEmailWarning;
+
       const showSubmissionConfirmation = () => {
         if (onSuccess) {
           onSuccess();
-          return;
         }
 
-        toast({
-          title: "Request submitted",
-          description: "Thanks! I'll be in touch shortly with next steps.",
-        });
+        if (!onSuccess || shouldForceToast) {
+          toast({
+            title: successTitle,
+            description: successDescription,
+            variant: shouldForceToast ? "default" : undefined,
+          });
+          return;
+        }
       };
 
       if (variant === "modal") {
